@@ -2,7 +2,7 @@ const { OAuth2Client } = require("google-auth-library");
 const jwt = require("jsonwebtoken");
 const jwksClient = require("jwks-rsa");
 import { EventTypes } from "../../Constants/EventTypes";
-import { AdditionalTimeouts, AuthProviders, Common } from "../../Constants/Constants";
+import { AdditionalTimeouts, AuthProviders } from "../../Constants/Constants";
 import { SessionService } from "./SessionService";
 const settings = require("../../settings.json");
 const crypto = require("crypto");
