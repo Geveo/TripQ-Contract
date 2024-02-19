@@ -7,7 +7,7 @@ const { EventTypes } = require("./Constants/EventTypes");
 const version = require("./../package.json").version;
 
 const voyageLankaContract = async ctx => {
-	console.log(`VoyageLanka contract v${version} is running.`);
+	console.log(`TripQ contract v${version} is running.`);
 	SharedService.context = ctx;
 	const isReadOnly = ctx.readonly;
 
@@ -15,7 +15,6 @@ const voyageLankaContract = async ctx => {
 		// Listen to npl message with specific type
 		ctx.unl.onMessage((node, msg) => {
 			const obj = JSON.parse(msg.toString());
-			console.log("obj::", obj);
 			if (obj.type && obj.type === EventTypes.ALL_NODE) {
 				SharedService.nplEventEmitter.emit(EventTypes.ALL_NODE, node, msg);
 			} else if (obj.type && obj.type === EventTypes.ONE_FROM_ALL) {

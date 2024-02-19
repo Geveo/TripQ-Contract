@@ -6,7 +6,7 @@ import DecisionFunctions from "../Domain.Services/DecisionFunctions";
 import { EventTypes } from "../../Constants/EventTypes";
 import { AdditionalTimeouts } from "../../Constants/Constants";
 
-const settings = require("./settings.json").sendgridMail;
+const settings = require("../../settings.json").sendgridMail;
 export class EmailService {
 	activityLogger = new ActivityLogService(message);
 

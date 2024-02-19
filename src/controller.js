@@ -2,16 +2,19 @@ import { ContractUpdateController } from "./Controllers/ContractUpdate.Controlle
 import { ServiceTypes } from "./Constants/ServiceTypes";
 import { AuthService } from "./Services/Common.Services/Auth.service";
 import { MessageAuthenticationService } from "./Services/Common.Services/MessageAuthenticationService";
+import { HotelController } from "./Controllers/Hotel.Controller";
 
 const settings = require("./settings.json").settings;
 
 export class Controller {
 	dbPath = settings.dbPath;
 	#contractController = null;
+	#hotelController = null;
 	#messageAuthService = null;
 
 	async handleRequest(user, message, isReadOnly) {
 		this.#contractController = new ContractUpdateController(message);
+		this.#hotelController = new HotelController(message);
 		this.#messageAuthService = new MessageAuthenticationService();
 
 		let _authService = new AuthService();
@@ -32,12 +35,9 @@ export class Controller {
 					result = { error: verification.reason ?? "Authentication failed." };
 				}
 			}
-
-			// pass to the relevant service based on the "service" property
-			// if (requestData.Service == "User") {
-			// 	this.#userController = new UserController(requestData);
-			// 	result = await this.#userController.handleRequest();
-			//   }
+			if(requestData.Service == ServiceTypes.HOTEL){
+				result = await this.#hotelController.handleRequest();
+			}
 		}
 
 		if (isReadOnly) {
