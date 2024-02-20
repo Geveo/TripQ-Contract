@@ -1,5 +1,9 @@
 export const Tables = {
     CONTRACTVERSION: "ContractVersion",
 	HOTELS: "Hotels",
-    IMAGES: "Images"
+    HOTELIMAGES: "HotelImages",
+    ROOMTYPEIMAGES: "RoomTypeImages",
+    ROOMTYPES: "RoomTypes",
+    ROOMS: "Rooms",
+    PRICES: "Prices",
 };
