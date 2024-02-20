@@ -38,14 +38,67 @@ export class DBInitializer {
 				PRIMARY KEY("Id" AUTOINCREMENT)
 			)`);
 
-             // Create table Images
-             await this.#runQuery(`CREATE TABLE IF NOT EXISTS ${Tables.IMAGES} (
+             // Create table HotelImages
+             await this.#runQuery(`CREATE TABLE IF NOT EXISTS ${Tables.HOTELIMAGES} (
 				Id INTEGER,
 				HotelId INTEGER,
 				ImageURL Text,
 				CreatedOn INTEGER,
 				LastUpdatedOn INTEGER,
-				PRIMARY KEY("Id" AUTOINCREMENT)
+				PRIMARY KEY("Id" AUTOINCREMENT),
+				FOREIGN KEY("HotelId") REFERENCES "${Tables.HOTELS}"("Id") ON DELETE CASCADE ON UPDATE CASCADE
+			)`);
+
+			// Create table RoomTypes
+			await this.#runQuery(`CREATE TABLE IF NOT EXISTS ${Tables.ROOMTYPES} (
+				Id INTEGER,
+				HotelId INTEGER,
+				Code Text,
+				Sqft INTEGER,
+				Description Text,
+				RoomsCount INTEGER,
+				SingleBedCount INTEGER,
+				DoubleBedCount INTEGER,
+				TripleBedCount INTEGER,
+				Facilities Text,
+				CreatedOn INTEGER,
+				LastUpdatedOn INTEGER,
+				PRIMARY KEY("Id" AUTOINCREMENT),
+				FOREIGN KEY("HotelId") REFERENCES "${Tables.HOTELS}"("Id") ON DELETE CASCADE ON UPDATE CASCADE
+			)`);
+
+			// Create table RoomTypesImage
+			await this.#runQuery(`CREATE TABLE IF NOT EXISTS ${Tables.ROOMTYPEIMAGES} (
+				Id INTEGER,
+				RoomTypeId INTEGER,
+				ImageURL Text,
+				CreatedOn INTEGER,
+				LastUpdatedOn INTEGER,
+				PRIMARY KEY("Id" AUTOINCREMENT),
+				FOREIGN KEY("RoomTypeId") REFERENCES "${Tables.ROOMTYPES}"("Id") ON DELETE CASCADE ON UPDATE CASCADE
+			)`);
+
+			// Create table Room
+			await this.#runQuery(`CREATE TABLE IF NOT EXISTS ${Tables.ROOMS} (
+				Id INTEGER,
+				RoomTypeId INTEGER,
+				RoomCode Text,
+				CreatedOn INTEGER,
+				LastUpdatedOn INTEGER,
+				PRIMARY KEY("Id" AUTOINCREMENT),
+				FOREIGN KEY("RoomTypeId") REFERENCES "${Tables.ROOMTYPES}"("Id") ON DELETE CASCADE ON UPDATE CASCADE
+			)`);
+
+			// Create table Pricing
+			await this.#runQuery(`CREATE TABLE IF NOT EXISTS ${Tables.PRICES} (
+				Id INTEGER,
+				RoomTypeId INTEGER,
+				TypeOfStay Text ,
+				Price REAL,
+				CreatedOn INTEGER,
+				LastUpdatedOn INTEGER,
+				PRIMARY KEY("Id" AUTOINCREMENT),
+				FOREIGN KEY("RoomTypeId") REFERENCES "${Tables.ROOMTYPES}"("Id") ON DELETE CASCADE ON UPDATE CASCADE
 			)`);
 
 			this.#db.close();

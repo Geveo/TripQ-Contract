@@ -52,9 +52,9 @@ class HotelService {
 					Url: url,
 				};
 
-				if (await this.#dbContext.isTableExists(Tables.IMAGES)) {
+				if (await this.#dbContext.isTableExists(Tables.HOTELIMAGES)) {
 					try {
-						await this.#dbContext.insertValue(Tables.IMAGES, imageEntity);
+						await this.#dbContext.insertValue(Tables.HOTELIMAGES, imageEntity);
 					} catch (error) {
 						throw `Error occured in image saving: ${e}`;
 					}
