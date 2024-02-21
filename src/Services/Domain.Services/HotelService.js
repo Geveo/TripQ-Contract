@@ -1,16 +1,13 @@
-const evernode = require("evernode-js-client");
-const settings = require("../../settings.json").settings;
-const constants = require("../../Constants/Constants");
-const { SqliteDatabase } = require("../Common.Services/dbHandler");
-// import { RequestSubTypes } from 'constants';
+import { Tables } from "../../Constants/Tables";
 
-class HotelService {
+const settings = require("../../settings.json").settings;
+const { SqliteDatabase } = require("../Common.Services/dbHandler").default;
+export class HotelService {
 	#message = null;
 	#dbPath = settings.dbPath;
 	#dbContext = null;
 
-	#date = SharedService.getCurrentTimestamp();
-
+	//#date = SharedService.getCurrentTimestamp();
 	constructor(message) {
 		this.#message = message;
 		this.#dbContext = new SqliteDatabase(this.#dbPath);
@@ -19,53 +16,49 @@ class HotelService {
 	async registerHotel() {
 		let resObj = {};
 
-		const data = this.#message.data;
+		try{
+			this.#dbContext.open();
+			const data = this.#message.Service.data;
 
-		const hotelEntity = {
-			//HotelWalletAddress: data.HotelWalletAddress,
-			//HotelNftId: "",
-			//OwnerName: data.OwnerName,
-			Name: data.Name,
-			Description: data.Description,
-			StarRatings: data.StarRatings,
-			Location: data.Location,
-			ContactDetails: data.ContactDetails,
-			Facilities: data.Facilities,
-			//AddressLine1: data.AddressLine1,
-			//AddressLine2: data.AddressLine2,
-			//City: data.City,
-			//DistanceFromCenter: data.DistanceFromCenter,
-			//Email: data.Email,
-			//ContactNumber1: data.ContactNumber1,
-			//ContactNumber2: data.ContactNumber2,
-			//IsRegistered: 0,
-		};
-
-		// Saving to the hotel table
-		const rowId = (await this.#dbContext.insertValue(Tables.HOTELS, data)).lastId;
-
-		// Saving to the image table
-		if (data.ImageUrls && data.ImageUrls.length > 0) {
-			for (const url of data.ImageUrls) {
-				const imageEntity = {
-					HotelId: insertedId,
-					Url: url,
-				};
-
-				if (await this.#dbContext.isTableExists(Tables.HOTELIMAGES)) {
-					try {
-						await this.#dbContext.insertValue(Tables.HOTELIMAGES, imageEntity);
-					} catch (error) {
-						throw `Error occured in image saving: ${e}`;
+			const hotelEntity = {
+				Name: data.Name,
+				Description: data.Description,
+				StarRatings: data.StarRate,
+				Location: data.Location,
+				ContactDetails: data.ContactDetails,
+				Facilities: data.Facilities,
+			};
+	
+			// Saving to the hotel table
+			const rowId = (await this.#dbContext.insertValue(Tables.HOTELS, hotelEntity));
+	
+			// Saving to the image table
+			if (data.ImageUrls && data.ImageUrls.length > 0) {
+				for (const url of data.ImageUrls) {
+					const imageEntity = {
+						HotelId: insertedId,
+						Url: url,
+					};
+	
+					if (await this.#dbContext.isTableExists(Tables.HOTELIMAGES)) {
+						try {
+							await this.#dbContext.insertValue(Tables.IMAGES, imageEntity);
+						} catch (error) {
+							throw `Error occured in image saving: ${e}`;
+						}
+					} else {
+						throw "Image table not found.";
 					}
-				} else {
-					throw "Image table not found.";
 				}
 			}
-		}
+	
+			resObj.success = { rowId: rowId };
+			return resObj;
+		}catch (error){
 
-		resObj.success = { rowId: rowId };
-		return resObj;
+		}finally{
+			this.#dbContext.close();
+		}
 	}
 
 	// async #checkIfHotelExists(walletAddress) {
@@ -646,6 +639,3 @@ class HotelService {
 	// 	}
 }
 
-module.exports = {
-	HotelService,
-};

@@ -6,6 +6,7 @@ const RequestTypes = {
 }
 
 const RequestSubTypes = {
+    REGISTER_HOTEL: "RegisterHotel",
     REQUEST_TOKEN_OFFER: "RequestTokenOffer",
     REGISTRATION_CONFIRMATION: "RegistrationConfirmation",
     GET_HOTELS: "GetHotels",
@@ -35,10 +36,4 @@ const RequestSubTypes = {
 const FacilityStatuses = {
     AVAILABLE: "Available",
     UNAVAILABLE: "UnAvaialble",
-}
-
-module.exports = {
-    RequestTypes,
-    RequestSubTypes,
-    FacilityStatuses
 }
