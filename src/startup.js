@@ -8,6 +8,7 @@ const version = require("./../package.json").version;
 
 const voyageLankaContract = async ctx => {
 	console.log(`TripQ contract v${version} is running.`);
+	
 	SharedService.context = ctx;
 	const isReadOnly = ctx.readonly;
 
@@ -38,7 +39,7 @@ const voyageLankaContract = async ctx => {
 	}
 
 	// Initialize database
-	//await DBInitializer.init();
+	await DBInitializer.init();
 
 	const controller = new Controller();
 
@@ -55,7 +56,7 @@ const voyageLankaContract = async ctx => {
 			} catch (e) {
 				message = bson.deserialize(buf);
 			}
-			// Pass the JSON message to our application logic component.
+			// Pass the JSON message to our application logic component. 
 			await controller.handleRequest(user, message, isReadOnly);
 		}
 	}
