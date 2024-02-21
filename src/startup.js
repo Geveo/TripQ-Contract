@@ -6,7 +6,7 @@ const { SharedService } = require("./Services/Common.Services/SharedService");
 const { EventTypes } = require("./Constants/EventTypes");
 const version = require("./../package.json").version;
 
-const voyageLankaContract = async ctx => {
+const tripQContract = async ctx => {
 	console.log(`TripQ contract v${version} is running.`);
 	
 	SharedService.context = ctx;
@@ -63,4 +63,4 @@ const voyageLankaContract = async ctx => {
 };
 
 const hpc = new HotPocket.Contract();
-hpc.init(voyageLankaContract);
+hpc.init(tripQContract);

@@ -40,7 +40,7 @@ export class HotelService {
 						Url: url,
 					};
 	
-					if (await this.#dbContext.isTableExists(Tables.IMAGES)) {
+					if (await this.#dbContext.isTableExists(Tables.HOTELIMAGES)) {
 						try {
 							await this.#dbContext.insertValue(Tables.IMAGES, imageEntity);
 						} catch (error) {
