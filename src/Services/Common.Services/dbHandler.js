@@ -342,6 +342,43 @@ class SqliteDatabase {
 			});
 		});
 	}
+
+	// Function to insert rows into a SQLite table
+	async insertRowsIntoTable(tableName, rowDataArray) {
+		// Prepare the SQL statement for inserting rows
+		const insertStatement = `INSERT INTO ${tableName} VALUES (${rowDataArray.map(() => '?').join(', ')})`;
+
+		// Begin a transaction
+		this.db.serialize(() => {
+			// Prepare the statement
+			const stmt = db.prepare(insertStatement);
+
+			// Insert each row
+			rowDataArray.forEach(rowData => {
+				stmt.run(rowData, err => {
+					if (err) {
+						console.error('Error inserting row:', err.message);
+					}
+				});
+			});
+
+			// Finalize the statement
+			stmt.finalize(err => {
+				if (err) {
+					console.error('Error finalizing statement:', err.message);
+				}
+			});
+
+			// Commit the transaction
+			// this.db.get("COMMIT;", function(err) {
+			// 	if (err) {
+			// 		console.error('Error committing transaction:', err.message);
+			// 	}
+			// });
+
+		
+		});
+	}
 }
 
 export default {
