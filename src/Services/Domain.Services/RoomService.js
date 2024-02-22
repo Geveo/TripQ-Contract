@@ -2,14 +2,14 @@ import { TypeOfStay } from "../../Constants/Enum/Rooms";
 const evernode = require("evernode-js-client");
 const settings = require("../../settings.json").settings;
 const constants = require("../../Constants/Constants");
-const { SqliteDatabase } = require("../Common.Services/dbHandler");
+const { SqliteDatabase } = require("../Common.Services/dbHandler").default;
 
 export class RoomService {
 	#message = null;
 	#dbPath = settings.dbPath;
 	#dbContext = null;
 
-	#date = SharedService.getCurrentTimestamp();
+	//#date = SharedService.getCurrentTimestamp();
 
 	constructor(message) {
 		this.#message = message;

@@ -44,6 +44,7 @@ export class DBInitializer {
                 ContactDetails Text,
                 Location Text,
                 Facilities Text,
+				WalletAddress Text,
 				CreatedOn INTEGER,
 				LastUpdatedOn INTEGER,
 				PRIMARY KEY("Id" AUTOINCREMENT)
