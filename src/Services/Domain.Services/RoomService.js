@@ -1,10 +1,10 @@
-import { TypeOfStay } from "../../Constants/Enums/Rooms";
+import { TypeOfStay } from "../../Constants/Enum/Rooms";
 const evernode = require("evernode-js-client");
 const settings = require("../../settings.json").settings;
 const constants = require("../../Constants/Constants");
 const { SqliteDatabase } = require("../Common.Services/dbHandler").default;
 
-class RoomService {
+export class RoomService {
 	#message = null;
 	#dbPath = settings.dbPath;
 	#dbContext = null;
@@ -101,7 +101,6 @@ class RoomService {
 		return resObj;
 	}
 
-
 	async deleteRoomType() {
 		let resObj = {};
 		const data = this.#message.data;
@@ -145,11 +144,5 @@ class RoomService {
 		} finally {
 			this.#dbContext.close();
 		}
-
 	}
-
 }
-
-module.exports = {
-	RoomService,
-};

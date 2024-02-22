@@ -1,10 +1,8 @@
 import { HotelService } from "../Services/Domain.Services/HotelService";
-import { ActivityLogService } from "../Services/Common.Services/ActivityLog.Service";
 
 export class HotelController {
 	#message = null;
 	#service = null;
-	#activityLogger = null;
 
 	constructor(message) {
 		this.#message = message;
@@ -13,7 +11,7 @@ export class HotelController {
 
 	async handleRequest() {
 		try {
-			switch (this.#message.Action) {
+			switch (this.#message.Service.subType) {
 				case "RegisterHotel":
 					return await this.#service.registerHotel();
 					break;

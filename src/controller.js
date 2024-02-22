@@ -22,28 +22,41 @@ export class Controller {
 
 		//let _authService = new AuthService();
 
-        let result = {};
+		let result = {};
 
 		// request authentication
-		if(!this.#messageAuthService.verify(message)){
-			result = {error: "Request cannot be authenticated"};
-		}else{
-			const requestData = this.#messageAuthService.deserializeData(message.requestHex);
-			
-			if (requestData.Service == ServiceTypes.CONTRACT_UPDATE) {
-				const verification = _authService.verifyContractUpdateRequest(requestData);
-				if (verification.isVerified) {
-					result = await this.#contractController.handleRequest();
-				} else {
-					result = { error: verification.reason ?? "Authentication failed." };
-				}
-			}
-			if(requestData.Service == ServiceTypes.HOTEL){
-				result = await this.#hotelController.handleRequest();
-			}
-			if(requestData.Service == ServiceTypes.ROOM){
-				result = await this.#roomController.handleRequest();
-			}
+		// if(!this.#messageAuthService.verify(message)){
+		// 	result = {error: "Request cannot be authenticated"};
+		// }else{
+		// 	const requestData = this.#messageAuthService.deserializeData(message.requestHex);
+
+		// 	// if (requestData.Service == ServiceTypes.CONTRACT_UPDATE) {
+		// 	// 	const verification = _authService.verifyContractUpdateRequest(requestData);
+		// 	// 	if (verification.isVerified) {
+		// 	// 		result = await this.#contractController.handleRequest();
+		// 	// 	} else {
+		// 	// 		result = { error: verification.reason ?? "Authentication failed." };
+		// 	// 	}
+		// 	// }
+		// 	if(message.type == ServiceTypes.HOTEL){
+		// 		result = await this.#hotelController.handleRequest();
+		// 	}
+		// }
+	//	const requestData = this.#messageAuthService.deserializeData(message.requestHex);
+
+		// if (requestData.Service == ServiceTypes.CONTRACT_UPDATE) {
+		// 	const verification = _authService.verifyContractUpdateRequest(requestData);
+		// 	if (verification.isVerified) {
+		// 		result = await this.#contractController.handleRequest();
+		// 	} else {
+		// 		result = { error: verification.reason ?? "Authentication failed." };
+		// 	}
+		// }
+		if (message.Service.type == ServiceTypes.HOTEL) {
+			result = await this.#hotelController.handleRequest();
+		}
+		if (message.Service.type == ServiceTypes.ROOM) {
+			result = await this.#roomController.handleRequest();
 		}
 
 		if (isReadOnly) {
@@ -51,12 +64,12 @@ export class Controller {
 		} else {
 			await this.sendOutput(
 				user,
-				message.promiseId ? { promiseId: message.promiseId, ...result } : result,
+				message.promiseId ? { promiseId: message.promiseId, ...result } : result
 			);
 		}
 	}
 
-    sendOutput = async (user, response) => {
-        await user.send(response);
-    };
+	sendOutput = async (user, response) => {
+		await user.send(response);
+	};
 }

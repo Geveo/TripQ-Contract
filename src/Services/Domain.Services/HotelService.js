@@ -641,6 +641,3 @@ export class HotelService {
 	// 	}
 }
 
-module.exports = {
-	HotelService,
-};

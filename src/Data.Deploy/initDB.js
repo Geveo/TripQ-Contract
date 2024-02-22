@@ -24,6 +24,17 @@ export class DBInitializer {
 				PRIMARY KEY("Id" AUTOINCREMENT)
 			)`);
 
+			// Create table SqlScriptMigrations
+			await this
+			.#runQuery(`CREATE TABLE IF NOT EXISTS ${Tables.SQLSCRIPTMIGRATIONS} (
+			Id INTEGER,
+			Sprint TEXT NOT NULL,
+			ScriptName TEXT NOT NULL,
+			ExecutedTimestamp TEXT, 
+			ConcurrencyKey TEXT
+				CHECK (ConcurrencyKey LIKE '0x%' AND length(ConcurrencyKey) = 18),
+			PRIMARY KEY("Id" AUTOINCREMENT)
+		)`);
             // Create table Hotels
             await this.#runQuery(`CREATE TABLE IF NOT EXISTS ${Tables.HOTELS} (
 				Id INTEGER,
