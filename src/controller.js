@@ -18,9 +18,9 @@ export class Controller {
 		this.#contractController = new ContractUpdateController(message);
 		this.#hotelController = new HotelController(message);
 		this.#roomController = new RoomController(message);
-		this.#messageAuthService = new MessageAuthenticationService();
+		//this.#messageAuthService = new MessageAuthenticationService();
 
-		let _authService = new AuthService();
+		//let _authService = new AuthService();
 
         let result = {};
 
