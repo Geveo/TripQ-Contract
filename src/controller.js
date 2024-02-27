@@ -52,10 +52,10 @@ export class Controller {
 		// 		result = { error: verification.reason ?? "Authentication failed." };
 		// 	}
 		// }
-		if (message.Service.type == ServiceTypes.HOTEL) {
+		if (message.type == ServiceTypes.HOTEL) {
 			result = await this.#hotelController.handleRequest();
 		}
-		if (message.Service.type == ServiceTypes.ROOM) {
+		if (message.type == ServiceTypes.ROOM) {
 			result = await this.#roomController.handleRequest();
 		}
 

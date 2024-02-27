@@ -11,7 +11,7 @@ export class HotelController {
 
 	async handleRequest() {
 		try {
-			switch (this.#message.Service.subType) {
+			switch (this.#message.subType) {
 				case "RegisterHotel":
 					return await this.#service.registerHotel();
 					break;

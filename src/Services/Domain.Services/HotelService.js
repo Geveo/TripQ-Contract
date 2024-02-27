@@ -2,6 +2,7 @@ const evernode = require("evernode-js-client");
 const settings = require("../../settings.json").settings;
 const { SqliteDatabase } = require("../Common.Services/dbHandler").default;
 const { SharedService } = require("../Common.Services/SharedService");
+import { Tables } from "../../Constants/Tables";
 
 export class HotelService {
 	#message = null;
@@ -19,7 +20,7 @@ export class HotelService {
 
 		try{
 			this.#dbContext.open();
-			const data = this.#message.Service.data;
+			const data = this.#message.data;
 			const hotelEntity = {
 				Name: data.Name,
 				Description: data.Description,

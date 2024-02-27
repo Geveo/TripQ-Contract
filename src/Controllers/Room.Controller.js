@@ -13,7 +13,7 @@ export class RoomController {
 
 	async handleRequest() {
 		try {
-			switch (this.#message.Action) {
+			switch (this.#message.subType) {
 				case "createUpdateRoomType":
 					return await this.#service.createUpdateRoomType();
 					break;
