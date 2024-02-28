@@ -16,11 +16,10 @@ const RequestSubTypes = {
     SEARCH_HOTELS_WITH_ROOM: "SearchHotelsWithRoom",
     GET_SINGLE_HOTEL_WITH_ROOMS: "GetSingleHotelWithRooms",
 
-    GET_ROOMS: "GetRooms",
-    GET_ROOMS_BY_HOTELID: "GetRoomsByHotelId",
-    CREATE_ROOM: "CreateRoom",
-    EDIT_ROOM: "EditRoom",
-    DELETE_ROOM: "DeleteRoom",
+    GET_ROOMTYPES: "GetRoomTypes",
+    CREATE_ROOMTYPE: "CreateRoomType",
+    EDIT_ROOMTYPE: "EditRoomType",
+    DELETE_ROOMTYPE: "DeleteRoomType",
 
     CREATE_CUSTOMER: "CreateCustomer",
     EDIT_CUSTOMER: "EditCustomer",

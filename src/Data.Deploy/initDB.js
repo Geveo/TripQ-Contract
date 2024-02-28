@@ -68,6 +68,7 @@ export class DBInitializer {
 				Sqft INTEGER,
 				Description Text,
 				RoomsCount INTEGER,
+				Price REAL,
 				SingleBedCount INTEGER,
 				DoubleBedCount INTEGER,
 				TripleBedCount INTEGER,

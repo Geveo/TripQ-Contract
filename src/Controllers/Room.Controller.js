@@ -13,15 +13,18 @@ export class RoomController {
 
 	async handleRequest() {
 		try {
-			switch (this.#message.Action) {
-				case "createUpdateRoomType":
-					return await this.#service.createUpdateRoomType();
+			switch (this.#message.Service.subType) {
+				case "CreateRoomType":
+					return await this.#service.createRoomType();
 					break;
 				case "DeleteRoomType":
 					return await this.#service.deleteRoomType();
 					break;
-				case "getRoomTypes":
+				case "GetRoomTypes":
 					return await this.#service.getRoomTypes();
+					break;
+				case "EditRoomTypes":
+					return await this.#service.editRoomTypes();
 					break;
 				default:
 					break;
