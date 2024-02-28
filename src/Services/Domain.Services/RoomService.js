@@ -10,7 +10,7 @@ export class RoomService {
 	#dbPath = settings.dbPath;
 	#dbContext = null;
 
-	#date = SharedService.getCurrentTimestamp();
+	//#date = SharedService.getCurrentTimestamp();
 
 	constructor(message) {
 		this.#message = message;

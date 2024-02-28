@@ -1,13 +1,15 @@
-import { Tables } from "../../Constants/Tables";
-
+const evernode = require("evernode-js-client");
 const settings = require("../../settings.json").settings;
 const { SqliteDatabase } = require("../Common.Services/dbHandler").default;
+const { SharedService } = require("../Common.Services/SharedService");
+import { Tables } from "../../Constants/Tables";
+
 export class HotelService {
 	#message = null;
 	#dbPath = settings.dbPath;
 	#dbContext = null;
 
-	//#date = SharedService.getCurrentTimestamp();
+	#date = SharedService.getCurrentTimestamp();
 	constructor(message) {
 		this.#message = message;
 		this.#dbContext = new SqliteDatabase(this.#dbPath);
@@ -18,8 +20,7 @@ export class HotelService {
 
 		try{
 			this.#dbContext.open();
-			const data = this.#message.Service.data;
-
+			const data = this.#message.data;
 			const hotelEntity = {
 				Name: data.Name,
 				Description: data.Description,
@@ -27,8 +28,10 @@ export class HotelService {
 				Location: data.Location,
 				ContactDetails: data.ContactDetails,
 				Facilities: data.Facilities,
+				WalletAddress: data.WalletAddress,
+				CreatedOn: this.#date
 			};
-	
+
 			// Saving to the hotel table
 			const rowId = (await this.#dbContext.insertValue(Tables.HOTELS, hotelEntity));
 	

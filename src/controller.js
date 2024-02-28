@@ -18,9 +18,9 @@ export class Controller {
 		this.#contractController = new ContractUpdateController(message);
 		this.#hotelController = new HotelController(message);
 		this.#roomController = new RoomController(message);
-		this.#messageAuthService = new MessageAuthenticationService();
+		//this.#messageAuthService = new MessageAuthenticationService();
 
-		let _authService = new AuthService();
+		//let _authService = new AuthService();
 
 		let result = {};
 
@@ -52,10 +52,10 @@ export class Controller {
 		// 		result = { error: verification.reason ?? "Authentication failed." };
 		// 	}
 		// }
-		if (message.Service.type == ServiceTypes.HOTEL) {
+		if (message.type == ServiceTypes.HOTEL) {
 			result = await this.#hotelController.handleRequest();
 		}
-		if (message.Service.type == ServiceTypes.ROOM) {
+		if (message.type == ServiceTypes.ROOM) {
 			result = await this.#roomController.handleRequest();
 		}
 
