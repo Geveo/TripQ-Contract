@@ -15,6 +15,9 @@ export class HotelController {
 				case "RegisterHotel":
 					return await this.#service.registerHotel();
 					break;
+				case "GetHotelsListByWalletAddress":
+					return await this.#service.getHotelsListByWalletAddress();
+					break;
 				default:
 					break;
 			}

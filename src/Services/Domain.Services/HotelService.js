@@ -3,6 +3,7 @@ const settings = require("../../settings.json").settings;
 const { SqliteDatabase } = require("../Common.Services/dbHandler").default;
 const { SharedService } = require("../Common.Services/SharedService");
 import { Tables } from "../../Constants/Tables";
+import {HotelDto} from "../../Dto/HotelDto";
 
 export class HotelService {
 	#message = null;
@@ -18,7 +19,7 @@ export class HotelService {
 	async registerHotel() {
 		let resObj = {};
 
-		try{
+		try {
 			this.#dbContext.open();
 			const data = this.#message.data;
 			const hotelEntity = {
@@ -29,12 +30,12 @@ export class HotelService {
 				ContactDetails: data.ContactDetails,
 				Facilities: data.Facilities,
 				WalletAddress: data.WalletAddress,
-				CreatedOn: this.#date
+				CreatedOn: this.#date,
 			};
 
 			// Saving to the hotel table
-			const rowId = (await this.#dbContext.insertValue(Tables.HOTELS, hotelEntity));
-	
+			const rowId = await this.#dbContext.insertValue(Tables.HOTELS, hotelEntity);
+
 			// Saving to the image table
 			if (data.ImageUrls && data.ImageUrls.length > 0) {
 				for (const url of data.ImageUrls) {
@@ -42,7 +43,7 @@ export class HotelService {
 						HotelId: insertedId,
 						Url: url,
 					};
-	
+
 					if (await this.#dbContext.isTableExists(Tables.HOTELIMAGES)) {
 						try {
 							await this.#dbContext.insertValue(Tables.IMAGES, imageEntity);
@@ -54,12 +55,11 @@ export class HotelService {
 					}
 				}
 			}
-	
+
 			resObj.success = { rowId: rowId };
 			return resObj;
-		}catch (error){
-
-		}finally{
+		} catch (error) {
+		} finally {
 			this.#dbContext.close();
 		}
 	}
@@ -141,6 +141,42 @@ export class HotelService {
 	// 	} finally {
 	// 	}
 	// }
+	async getHotelsListByWalletAddress() {
+        let resObj = {};
+        let debugCode = 0;
+
+        try {
+			await this.#dbContext.open();
+			console.log(this.#message);
+			
+			const hotels = await this.#dbContext.getValues(Tables.HOTELS, { WalletAddress: this.#message.filters.WalletAddress });
+				
+			debugCode++;
+			
+			resObj.success = hotels.length === 0 ? [] : hotels.map(hotel => {
+				const hotelObj = new HotelDto();
+				hotelObj.id = hotel.Id;
+				hotelObj.name = hotel.Name;
+				hotelObj.starRate = hotel.StarRate;
+				hotelObj.contactDetails = hotel.ContactDetails;
+				hotelObj.location = hotel.Location;
+				hotelObj.facilities = hotel.Facilities;
+				hotelObj.walletAddress = hotel.WalletAddress;
+			
+				return hotelObj; 
+			});
+			
+			debugCode++;
+			console.log(resObj);
+			
+			return resObj;
+			
+        } catch (error) {
+           console.log("Error in listing hotels")
+        } finally {
+            this.#dbContext.close();
+        }
+    }
 
 	// async #getHotels() {
 	// 	let query = `SELECT Hotels.Id, Hotels.HotelWalletAddress, Hotels.HotelNftId, Hotels.OwnerName, Hotels.Name, Hotels.Description, Hotels.AddressLine1, Hotels.AddressLine2, Hotels.City, Hotels.DistanceFromCenter, Hotels.Email, Hotels.ContactNumber1,
@@ -641,4 +677,3 @@ export class HotelService {
 	// 		return response;
 	// 	}
 }
-
