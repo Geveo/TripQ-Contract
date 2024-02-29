@@ -106,7 +106,7 @@ class SqliteDatabase {
 			}
 		}
 		filterStr = filterStr.slice(0, -5);
-
+		
 		const query =
 			`SELECT * FROM ${tableName}` + (filterStr ? ` WHERE ${filterStr};` : ";");
 		console.log("Query: " + query);

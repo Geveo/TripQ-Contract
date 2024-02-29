@@ -1,16 +1,16 @@
-import { TypeOfStay } from "../../Constants/Enum/Rooms";
 const evernode = require("evernode-js-client");
 const settings = require("../../settings.json").settings;
 const constants = require("../../Constants/Constants");
 const { SqliteDatabase } = require("../Common.Services/dbHandler").default;
 import { SharedService } from "../Common.Services/SharedService";
+import { Tables } from "../../Constants/Tables";
 
 export class RoomService {
 	#message = null;
 	#dbPath = settings.dbPath;
 	#dbContext = null;
 
-	//#date = SharedService.getCurrentTimestamp();
+	#date = SharedService.getCurrentTimestamp();
 
 	constructor(message) {
 		this.#message = message;
@@ -20,11 +20,11 @@ export class RoomService {
 	async createRoomType() {
 		let resObj = {};
 		let roomTypeId
-		const rooms = {};
 		this.#dbContext.open();
 
 		const data = this.#message.data;
 
+     try {
 		const roomType = {
 			HotelId: data.HotelId,
 			Code: data.Code,
@@ -34,18 +34,67 @@ export class RoomService {
 			SingleBedCount: data.SingleBedCount,
 			DoubleBedCount: data.DoubleBedCount,
 			TripleBedCount: data.TripleBedCount,
-			Facilities: data.Facilities,
+			Price: data.Price
 		};
-
 		// Saving to the roomType table
-		try {
-			roomTypeId = (await this.#dbContext.insertValue(Tables.ROOMTYPES, roomType)).lastId;
-			console.log("roomTypeId at creation:",roomTypeId);
+			const rmTId = (await this.#dbContext.insertValue(Tables.ROOMTYPES, roomType));
+		// If RFacilityId is present, in each array object, get that and save to m2m tble
+        // Otherwise, create a facility record and add it to the m2m table.
+        if (data.Facilities && data.Facilities.length > 0 && rmTId.lastId ) {
+            for (const facility of data.Facilities) {
+                let rFacilityId = 0;
+                if (facility.RFacilityId && facility.RFacilityId > 0) {
+                    rFacilityId = facility.RFacilityId;
+                }
+                else {
+                    // Save Facility Entity
+                    const rFacilityEntity = {
+                        Name: facility.Name,
+                        Description: facility.Description,
+						CreatedOn: this.#date
+                    }
+					 if (await this.#dbContext.isTableExists(Tables.FACILITIES)) {
+                        try {
+							const rFacilityIdRes = (await this.#dbContext.insertValue(Tables.FACILITIES, rFacilityEntity));
+						 } catch (error) {
+                            throw (`Error occured in saving room Facility ${rFacilityEntity.Name} `);
+                        }
+                    } else {
+                        throw (`Room Facility table not found.`);
+                    }
+                }
+
+                // Save in the m2m table
+                const roomFacilityEntity = {
+                    RoomTypeId: rmTId.lastId,
+                    FacilityId: rFacilityId,
+					Quantity:  1,
+					CreatedOn: this.#date
+                }
+
+                if (await this.#dbContext.isTableExists(Tables.ROOMFACILITIES)) {
+                    try {
+                       const roomFacility = await this.#dbContext.insertValue(Tables.ROOMFACILITIES, roomFacilityEntity);
+					  } catch (error) {
+                        throw (`Error occured in saving Room-Facility ${roomFacilityEntity.RFacilityId} `);
+                    }
+                } else {
+                    throw (`Room-Facility table not found.`);
+                }
+            }
+		}
+		resObj.success = rmTId.lastId;
+		return resObj;
+
 		} catch (error) {
 			throw new Error("Error occured in room type saving");
+		}finally{
+			this.#dbContext.close();
 		}
 
-		if (roomTypeId != null) {
+		
+
+	/*	if (roomTypeId != null) {
 			console.log("Saving to the roomTypeImage table");
 			// Saving to the roomTypeImage table
 			if (data.ImageUrls && data.ImageUrls.length > 0) {
@@ -99,11 +148,8 @@ export class RoomService {
 			} catch (error) {
 				throw new Error("Error occured in saving prices");
 			}
-		}
-
-		this.#dbContext.close();
-		resObj.success = { rowId: roomTypeId };
-		return resObj;
+		}*/
+		
 	}
 	
 	async editRoomType() {
@@ -169,13 +215,19 @@ export class RoomService {
 		//if user is an hotel owner
 		try {
 			this.#dbContext.open();
-			let rows = await this.#dbContext.getValues(Tables.ROOMTYPES, {HotelId: data.HotelId});
-			for (const rType of rows) {
+			const rows = await this.#dbContext.getValues(Tables.ROOMTYPES, {HotelId: data.HotelId});
+			console.log("resObj:",rows);
+			resObj.success = rows;
+			return resObj;
+	/*		for (const rType of rows) {
 				rTypeObj.Code = rType.Code;
 				rTypeObj.RoomCount = rType.RoomCount;
-				rTypeObj.SqftSqft = rType.Sqft;
+				rTypeObj.Sqft = rType.Sqft;
 				rTypeObj.Price = rType.Price;
-				rTypeObj.Facilities = rType.Facilities;
+				rTypeObj.SingleBedCount = rType.SingleBedCount;
+				rTypeObj.DoubleBedCount = rType.DoubleBedCount;
+				rTypeObj.TripleBedCount = rType.TripleBedCount;
+			
 				 let sleeps = 0;
 				 if(rType.SingleBedCount>0){
 					sleeps += SingleBedCount*1
@@ -186,13 +238,15 @@ export class RoomService {
 				 if(rType.TripleBedCount>0){
 					sleeps += TripleBedCount*3
 				 }
-				rTypeList.Sleeps = sleeps
+				 rTypeObj.Sleeps = sleeps
+
+				 //get Facility List
+				 //let rows = await this.#dbContext.getValues(Tables.Facilities, {HotelId: data.HotelId});
 
 				rTypeList.push(rTypeObj)
 
-			}
-			resObj.success = rTypeList;
-			return resObj;
+			}*/
+			
 		} catch (error) {
 			throw error;
 		} finally {
