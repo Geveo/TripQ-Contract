@@ -46,7 +46,7 @@ export class HotelService {
 
 					if (await this.#dbContext.isTableExists(Tables.HOTELIMAGES)) {
 						try {
-							await this.#dbContext.insertValue(Tables.IMAGES, imageEntity);
+							await this.#dbContext.insertValue(Tables.HOTELIMAGES, imageEntity);
 						} catch (error) {
 							throw `Error occured in image saving: ${e}`;
 						}
@@ -57,6 +57,7 @@ export class HotelService {
 			}
 
 			resObj.success = { rowId: rowId };
+			console.log("resObj.success ",resObj.success )
 			return resObj;
 		} catch (error) {
 		} finally {
