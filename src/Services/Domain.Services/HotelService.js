@@ -151,19 +151,19 @@ export class HotelService {
 			console.log(this.#message);
 			
 			const hotels = await this.#dbContext.getValues(Tables.HOTELS, { WalletAddress: this.#message.filters.WalletAddress });
-				
+			
 			debugCode++;
 			
 			resObj.success = hotels.length === 0 ? [] : hotels.map(hotel => {
 				const hotelObj = new HotelDto();
 				hotelObj.id = hotel.Id;
 				hotelObj.name = hotel.Name;
-				hotelObj.starRate = hotel.StarRate;
+				hotelObj.starRate = hotel.StarRatings;
 				hotelObj.contactDetails = hotel.ContactDetails;
 				hotelObj.location = hotel.Location;
 				hotelObj.facilities = hotel.Facilities;
 				hotelObj.walletAddress = hotel.WalletAddress;
-			
+				hotelObj.description = hotel.Description;
 				return hotelObj; 
 			});
 			
@@ -174,6 +174,31 @@ export class HotelService {
 			
         } catch (error) {
            console.log("Error in listing hotels")
+        } finally {
+            this.#dbContext.close();
+        }
+    }
+
+	async getHotelImagesById() {
+        let resObj = {};
+        let debugCode = 0;
+
+        try {
+			await this.#dbContext.open();
+			console.log(this.#message);
+			
+			const hotelImages = await this.#dbContext.getValues(Tables.HOTELIMAGES, { HotelId: this.#message.filters.Id });
+			
+			debugCode++;
+			
+			resObj.success = hotelImages;
+			
+			debugCode++;
+			
+			return resObj;
+			
+        } catch (error) {
+           console.log("Error in listing hotel images")
         } finally {
             this.#dbContext.close();
         }

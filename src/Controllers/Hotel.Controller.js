@@ -18,6 +18,9 @@ export class HotelController {
 				case "GetHotelsListByWalletAddress":
 					return await this.#service.getHotelsListByWalletAddress();
 					break;
+				case "GetHotelImagesById":
+					return await this.#service.getHotelImagesById();
+					break;
 				default:
 					break;
 			}
