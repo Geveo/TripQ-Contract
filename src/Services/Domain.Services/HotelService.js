@@ -37,11 +37,11 @@ export class HotelService {
 			const rowId = await this.#dbContext.insertValue(Tables.HOTELS, hotelEntity);
 
 			// Saving to the image table
-			if (data.ImageUrls && data.ImageUrls.length > 0) {
-				for (const url of data.ImageUrls) {
+			if (data.ImageURLs && data.ImageURLs.length > 0) {
+				for (const url of data.ImageURLs) {
 					const imageEntity = {
-						HotelId: insertedId,
-						Url: url,
+						HotelId: rowId.lastId,
+						ImageURL: url,
 					};
 
 					if (await this.#dbContext.isTableExists(Tables.HOTELIMAGES)) {
@@ -188,7 +188,7 @@ export class HotelService {
 			console.log(this.#message);
 			
 			const hotelImages = await this.#dbContext.getValues(Tables.HOTELIMAGES, { HotelId: this.#message.filters.Id });
-			
+	
 			debugCode++;
 			
 			resObj.success = hotelImages;
