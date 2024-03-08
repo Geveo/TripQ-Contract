@@ -136,6 +136,41 @@ export class DBInitializer {
 				FOREIGN KEY("RoomTypeId") REFERENCES "${Tables.ROOMTYPES}"("Id") ON DELETE CASCADE ON UPDATE CASCADE
 			)`);
 
+			// Create table Reservations
+			await this.#runQuery(`CREATE TABLE IF NOT EXISTS ${Tables.RESERVATIONS} (
+				Id INTEGER,
+				WalletAddress TEXT,
+				Price REAL,
+				FromDate TEXT,
+				ToDate TEXT,
+				NoOfNights INTEGER,
+				FirstName TEXT,
+				LastName TEXT,
+				Email TEXT,
+				Country TEXT,
+				Telephone TEXT,
+				
+				HotelId INTEGER ,
+				CreatedOn INTEGER,
+				LastUpdatedOn INTEGER,
+				PRIMARY KEY("Id" AUTOINCREMENT),
+				FOREIGN KEY("HotelId") REFERENCES "${Tables.HOTELS}"("Id") ON DELETE CASCADE ON UPDATE CASCADE
+			)`);
+
+			// Create table ReservationsRoomTypes
+			await this.#runQuery(`CREATE TABLE IF NOT EXISTS ${Tables.RESERVATIONROOMTYPES} (
+				Id INTEGER,
+				RoomTypeId INTEGER,
+				ReservationId INTEGER,
+				NoOfRooms INTEGER,
+
+				CreatedOn INTEGER,
+				LastUpdatedOn INTEGER,
+				PRIMARY KEY("Id" AUTOINCREMENT),
+				FOREIGN KEY("RoomTypeId") REFERENCES "${Tables.ROOMTYPES}"("Id") ON DELETE CASCADE ON UPDATE CASCADE,
+				FOREIGN KEY("ReservationId") REFERENCES "${Tables.RESERVATIONS}"("Id") ON DELETE CASCADE ON UPDATE CASCADE
+			)`);
+
 			await this.#insertData();
 
 			this.#db.close();
