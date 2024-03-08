@@ -1,6 +1,4 @@
-const evernode = require("evernode-js-client");
 const settings = require("../../settings.json").settings;
-const constants = require("../../Constants/Constants");
 const { SqliteDatabase } = require("../Common.Services/dbHandler").default;
 import { SharedService } from "../Common.Services/SharedService";
 import { Tables } from "../../Constants/Tables";
@@ -44,12 +42,12 @@ export class ReservationService {
 				}
 
 				const reservationIds = reservations.map(rs => rs.Id);
-				const roomDetails = await this.#dbContext.getValues(Tables.RESERVATIONROOMS, {ReservationId: reservationIds}, 'IN');
+				const roomDetails = await this.#dbContext.getValues(Tables.RESERVATIONROOMTYPES, {ReservationId: reservationIds}, 'IN');
 
 				const response = [];
 				for(const rs of reservations) {
 					const resObj = {...rs};
-					resObj.rooms = roomDetails.filter(rd => rd.ReservationId === rs.Id)[0];
+					resObj.rooms = roomDetails.filter(rd => rd.ReservationId === rs.Id);
 					response.push(resObj);
 				}
 

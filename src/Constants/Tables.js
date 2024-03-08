@@ -10,5 +10,5 @@ export const Tables = {
     FACILITIES: "Facilities",
     ROOMFACILITIES:"RoomFacilities",
     RESERVATIONS: "Reservations",
-    RESERVATIONROOMS: "ReservationRooms"
+    RESERVATIONROOMTYPES: "ReservationRoomTypes"
 };
