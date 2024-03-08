@@ -1,4 +1,5 @@
 export const ServiceTypes = {
 	HOTEL: "Hotel",
-	ROOM: "Room"
+	ROOM: "Room",
+	RESERVATION: "Reservation"
 };

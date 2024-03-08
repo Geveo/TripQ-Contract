@@ -8,5 +8,7 @@ export const Tables = {
     ROOMS: "Rooms",
     PRICES: "Prices",
     FACILITIES: "Facilities",
-    ROOMFACILITIES:"RoomFacilities"
+    ROOMFACILITIES:"RoomFacilities",
+    RESERVATIONS: "Reservations",
+    RESERVATIONROOMS: "ReservationRooms"
 };
