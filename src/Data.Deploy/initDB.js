@@ -72,6 +72,7 @@ export class DBInitializer {
 				SingleBedCount INTEGER,
 				DoubleBedCount INTEGER,
 				TripleBedCount INTEGER,
+				TotalSleeps INTEGER,
 				Facilities Text,
 				CreatedOn INTEGER,
 				LastUpdatedOn INTEGER,
@@ -112,6 +113,21 @@ export class DBInitializer {
 				PRIMARY KEY("Id" AUTOINCREMENT),
 				FOREIGN KEY("RoomTypeId") REFERENCES "${Tables.ROOMTYPES}"("Id") ON DELETE CASCADE ON UPDATE CASCADE
 			)`);
+
+			 // Reservations table
+			 await this.#runQuery(`CREATE TABLE IF NOT EXISTS ${Tables.RESERVATIONS} (
+                Id INTEGER,
+                RoomTypeId INTEGER,
+                RoomCount INTEGER,
+                CustomerId INTEGER,
+                FromDate DATE,
+                ToDate DATE,
+                Cost DOUBLE,
+                TransactionId TEXT,
+                PRIMARY KEY("Id" AUTOINCREMENT),
+				FOREIGN KEY("RoomTypeId") REFERENCES "${Tables.ROOMTYPES}"("Id") ON DELETE CASCADE ON UPDATE CASCADE
+                FOREIGN KEY (CustomerId) REFERENCES Customers (Id),
+                )`)
 
 			this.#db.close();
 		}

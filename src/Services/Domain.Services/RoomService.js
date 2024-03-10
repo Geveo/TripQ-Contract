@@ -21,8 +21,21 @@ export class RoomService {
 		let roomTypeId
 		const rooms = {};
 		this.#dbContext.open();
+		let sleeps = 0;
 
 		const data = this.#message.data;
+
+		if(data.SingleBedCount>0){
+			sleeps += SingleBedCount*1
+		}
+		if(data.DoubleBedCount>0){
+			sleeps += DoubleBedCount*2
+		}
+		if(data.TripleBedCount>0){
+			sleeps += TripleBedCount*3
+		}
+			 
+
 
 		const roomType = {
 			HotelId: data.HotelId,
@@ -34,6 +47,8 @@ export class RoomService {
 			DoubleBedCount: data.DoubleBedCount,
 			TripleBedCount: data.TripleBedCount,
 			Facilities: data.Facilities,
+			TotalSleeps: sleeps
+
 		};
 
 		// Saving to the roomType table

@@ -18,7 +18,10 @@ export class HotelController {
 				case "GetHotelsListByWalletAddress":
 					return await this.#service.getHotelsListByWalletAddress();
 					break;
-				default:
+				case "SearchHotels":
+					return await this.#service.searchHotelsByFilters();
+					break;
+					default:
 					break;
 			}
 		} catch (error) {
