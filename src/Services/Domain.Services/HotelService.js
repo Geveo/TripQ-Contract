@@ -37,16 +37,16 @@ export class HotelService {
 			const rowId = await this.#dbContext.insertValue(Tables.HOTELS, hotelEntity);
 
 			// Saving to the image table
-			if (data.ImageUrls && data.ImageUrls.length > 0) {
-				for (const url of data.ImageUrls) {
+			if (data.ImageURLs && data.ImageURLs.length > 0) {
+				for (const url of data.ImageURLs) {
 					const imageEntity = {
-						HotelId: insertedId,
-						Url: url,
+						HotelId: rowId.lastId,
+						ImageURL: url,
 					};
 
 					if (await this.#dbContext.isTableExists(Tables.HOTELIMAGES)) {
 						try {
-							await this.#dbContext.insertValue(Tables.IMAGES, imageEntity);
+							await this.#dbContext.insertValue(Tables.HOTELIMAGES, imageEntity);
 						} catch (error) {
 							throw `Error occured in image saving: ${e}`;
 						}
@@ -57,6 +57,7 @@ export class HotelService {
 			}
 
 			resObj.success = { rowId: rowId };
+			console.log("resObj.success ",resObj.success )
 			return resObj;
 		} catch (error) {
 		} finally {
@@ -352,19 +353,19 @@ export class HotelService {
 			console.log(this.#message);
 			
 			const hotels = await this.#dbContext.getValues(Tables.HOTELS, { WalletAddress: this.#message.filters.WalletAddress });
-				
+			
 			debugCode++;
 			
 			resObj.success = hotels.length === 0 ? [] : hotels.map(hotel => {
 				const hotelObj = new HotelDto();
 				hotelObj.id = hotel.Id;
 				hotelObj.name = hotel.Name;
-				hotelObj.starRate = hotel.StarRate;
+				hotelObj.starRate = hotel.StarRatings;
 				hotelObj.contactDetails = hotel.ContactDetails;
 				hotelObj.location = hotel.Location;
 				hotelObj.facilities = hotel.Facilities;
 				hotelObj.walletAddress = hotel.WalletAddress;
-			
+				hotelObj.description = hotel.Description;
 				return hotelObj; 
 			});
 			
@@ -375,6 +376,31 @@ export class HotelService {
 			
         } catch (error) {
            console.log("Error in listing hotels")
+        } finally {
+            this.#dbContext.close();
+        }
+    }
+
+	async getHotelImagesById() {
+        let resObj = {};
+        let debugCode = 0;
+
+        try {
+			await this.#dbContext.open();
+			console.log(this.#message);
+			
+			const hotelImages = await this.#dbContext.getValues(Tables.HOTELIMAGES, { HotelId: this.#message.filters.Id });
+	
+			debugCode++;
+			
+			resObj.success = hotelImages;
+			
+			debugCode++;
+			
+			return resObj;
+			
+        } catch (error) {
+           console.log("Error in listing hotel images")
         } finally {
             this.#dbContext.close();
         }

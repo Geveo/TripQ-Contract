@@ -7,5 +7,8 @@ export const Tables = {
     ROOMTYPES: "RoomTypes",
     ROOMS: "Rooms",
     PRICES: "Prices",
-    RESERVATIONS:"Reservations"
+    FACILITIES: "Facilities",
+    ROOMFACILITIES:"RoomFacilities",
+    RESERVATIONS: "Reservations",
+    RESERVATIONROOMTYPES: "ReservationRoomTypes"
 };
