@@ -111,31 +111,30 @@ export class HotelService {
             // Iterate through each hotel
             hotelRows.forEach(async hotel => {
                 // Query to retrieve available rooms for the specified dates
-                const availableRoomsQuery = `
-                    SELECT RT.*, 
-                           (RT.TotalSleeps - COALESCE(SUM(R.RoomCount), 0)) AS availableCapacity
+					const availableRoomsQuery = `
+                    SELECT DISTINCT RT.*
                     FROM ROOMTYPES RT
-                    LEFT JOIN RESERVATIONS R ON RT.Id = R.RoomTypeId AND (
+                    LEFT JOIN RESERVATIONROOMTYPES RRT ON RT.Id = RRT.RoomTypeId
+                    LEFT JOIN RESERVATIONS R ON RRT.ReservationId = R.Id
+                    WHERE RT.HotelId = ? AND (
                         (R.FromDate <= ? AND R.ToDate >= ?)
                         OR
                         (R.FromDate >= ? AND R.ToDate <= ?)
                         OR
                         (R.FromDate <= ? AND R.ToDate >= ?)
-                    )
-                    WHERE RT.HotelId = ?
-                    GROUP BY RT.Id`;
+                    )`;
 					
-					await this.#dbContext.runSelectQuery(availableRoomsQuery, 
-						[fromDate, toDate, fromDate, toDate, fromDate, toDate, hotel.Id],
+					await this.#dbContext.runSelectQuery(availableRoomsQuery,
+						 [hotel.Id, fromDate, toDate, fromDate, toDate, fromDate, toDate],
 						 (err, availableRooms) => {
                     if (err) {
                         reject(err);
                         return;
                     }
 
-                    // Calculate total available sleep capacity across all rooms
-                    const totalAvailableCapacity = availableRooms.reduce((totalCapacity, room) => {
-                        return totalCapacity + room.availableCapacity;
+                     // Calculate total available sleep capacity across all available rooms
+					 const totalAvailableCapacity = availableRooms.reduce((totalCapacity, room) => {
+                        return totalCapacity + room.TotalSleeps;
                     }, 0);
 
                     // Check if total available capacity is sufficient for the guest count
@@ -144,7 +143,7 @@ export class HotelService {
                     }
 
                     // Resolve the promise with the filtered hotels after iterating through all hotels
-                    if (hotelRows.indexOf(hotel) === hotelRows.length - 1) {
+                    if (hotels.indexOf(hotel) === hotels.length - 1) {
                         resolve(availableHotels);
                     }
                 });

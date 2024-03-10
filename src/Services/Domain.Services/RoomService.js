@@ -20,6 +20,7 @@ export class RoomService {
 	async createRoomType() {
 		let resObj = {};
 		let roomTypeId
+		try{
 		this.#dbContext.open();
 		let sleeps = 0;
 
@@ -34,8 +35,6 @@ export class RoomService {
 		if(data.TripleBedCount>0){
 			sleeps += TripleBedCount*3
 		}
-			 
-
 
 		const roomType = {
 			HotelId: data.HotelId,
@@ -47,8 +46,7 @@ export class RoomService {
 			DoubleBedCount: data.DoubleBedCount,
 			TripleBedCount: data.TripleBedCount,
 			Facilities: data.Facilities,
-			TotalSleeps: sleeps
-
+			TotalSleeps: sleeps,
 			Price: data.Price
 		};
 		// Saving to the roomType table
@@ -103,7 +101,8 @@ export class RoomService {
 
 		} catch (error) {
 			throw new Error("Error occured in room type saving");
-		}finally{
+		} finally
+		{
 			this.#dbContext.close();
 		}
 
@@ -164,7 +163,7 @@ export class RoomService {
 				throw new Error("Error occured in saving prices");
 			}
 		}*/
-		
+	
 	}
 	
 	async editRoomType() {

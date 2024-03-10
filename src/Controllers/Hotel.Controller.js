@@ -21,11 +21,10 @@ export class HotelController {
 				case "GetHotelImagesById":
 					return await this.#service.getHotelImagesById();
 					break;
-				default:
 				case "SearchHotels":
 					return await this.#service.searchHotelsByFilters();
 					break;
-					default:
+				default:
 					break;
 			}
 		} catch (error) {

@@ -151,7 +151,6 @@ export class DBInitializer {
 				Email TEXT,
 				Country TEXT,
 				Telephone TEXT,
-				
 				HotelId INTEGER ,
 				CreatedOn INTEGER,
 				LastUpdatedOn INTEGER,
@@ -165,7 +164,6 @@ export class DBInitializer {
 				RoomTypeId INTEGER,
 				ReservationId INTEGER,
 				NoOfRooms INTEGER,
-
 				CreatedOn INTEGER,
 				LastUpdatedOn INTEGER,
 				PRIMARY KEY("Id" AUTOINCREMENT),
