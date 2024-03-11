@@ -72,9 +72,7 @@ export class HotelService {
             throw ("Invalid request.");
         }
         const filters = this.#message.filters;
-
         const guestCount = this.#message.filters.GuestCount;
-
         const fromDate = new Date(filters.CheckInDate);
         const toDate = new Date(filters.CheckOutDate);
 
@@ -143,7 +141,7 @@ export class HotelService {
                     }
 
                     // Resolve the promise with the filtered hotels after iterating through all hotels
-                    if (hotels.indexOf(hotel) === hotels.length - 1) {
+                    if (hotelRows.indexOf(hotel) === hotelRows.length - 1) {
                         resolve(availableHotels);
                     }
                 });
