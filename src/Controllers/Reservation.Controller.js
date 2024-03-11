@@ -17,6 +17,9 @@ export class ReservationController {
 				case "GetReservations":
 					return await this.#service.getReservations();
 					break;
+				case "MakeReservations":
+					return await this.#service.makeReservations();
+					break;
 				default:
 					break;
 			}
