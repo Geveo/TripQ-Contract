@@ -23,17 +23,30 @@ export class ReservationService {
 
 		try {
 			this.#dbContext.open();
-			let filterObj = {};
-			if(filters) {
-				if(filters.HotelId && filters.HotelId > 0)
-					filterObj.HotelId = filters.HotelId;
-				if(filters.WalletAddress && filters.WalletAddress.length > 0)
-					filterObj.WalletAddress = filters.WalletAddress;
-				if(filters.Id && filters.Id > 0)
-					filterObj.Id = filters.Id;
-			}
 
-			let reservations = await this.#dbContext.getValues(Tables.RESERVATIONS, filterObj);
+			let filterString = '';
+			if (Object.keys(filters).length > 0) {
+				filterString = ' WHERE ';
+				Object.entries(filters).forEach(([key, value]) => {
+					// date filter is checked later not here
+					if(key !== 'date') {
+						if (typeof value === 'string') {
+							filterString += `${key} = '${value}' AND `;
+						} else {
+							filterString += `${key} = ${value} AND `;
+						}
+					}
+				});
+				filterString = filterString.slice(0, -5);
+			}
+			let reservationQuery = `SELECT rs.*, h.Name AS HotelName
+									  FROM ${Tables.RESERVATIONS} rs
+									  LEFT JOIN ${Tables.HOTELS} h
+									  ON rs.HotelId = h.Id`;
+			reservationQuery += filterString;
+
+			let reservations = await this.#dbContext.runSelectQuery(reservationQuery);
+
 			if( reservations.length > 0) {
 				
 				// Fitering by date (ToDate exclusive)
@@ -42,7 +55,13 @@ export class ReservationService {
 				}
 
 				const reservationIds = reservations.map(rs => rs.Id);
-				const roomDetails = await this.#dbContext.getValues(Tables.RESERVATIONROOMTYPES, {ReservationId: reservationIds}, 'IN');
+				let roomDetailsQuery = `SELECT rr.*, rt.Code
+										FROM ${Tables.RESERVATIONROOMTYPES} rr 
+										LEFT JOIN ${Tables.ROOMTYPES} rt 
+										ON rr.RoomTypeId = rt.Id
+										WHERE rr.ReservationId IN (${reservationIds.join(', ')})`;
+
+				const roomDetails = await this.#dbContext.runSelectQuery(roomDetailsQuery);
 
 				const response = [];
 				for(const rs of reservations) {
