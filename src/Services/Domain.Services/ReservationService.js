@@ -17,9 +17,10 @@ export class ReservationService {
 
 
     async getReservations() {
+		console.log("Get reservation Request arrived.");
         let resObj = {};
-		const data = this.#message.data;
-        const filters = data.filters; // {HotelId, WalletAddress, Id, date<string '2024-02-29'>,    dates?: {from, to}}   dates is not implememnted yet
+		const data = this.#message.data ?? {};
+        const filters = data.filters || {}; // {HotelId, WalletAddress, Id, date<string '2024-02-29'>,    dates?: {from, to}}   dates is not implememnted yet
 
 		try {
 			this.#dbContext.open();
@@ -31,9 +32,13 @@ export class ReservationService {
 					// date filter is checked later not here
 					if(key !== 'date') {
 						if (typeof value === 'string') {
-							filterString += `${key} = '${value}' AND `;
+							if(key === 'WalletAddress')
+								filterString += `rs.${key} = '${value}' AND `;
 						} else {
-							filterString += `${key} = ${value} AND `;
+							if(key === 'id')
+								filterString += `rs.${key} = ${value} AND `;
+							if(key === 'HotelId')
+							filterString += `rs.${key} = ${value} AND `;
 						}
 					}
 				});
@@ -46,6 +51,8 @@ export class ReservationService {
 			reservationQuery += filterString;
 
 			let reservations = await this.#dbContext.runSelectQuery(reservationQuery);
+
+			console.log(reservations)
 
 			if( reservations.length > 0) {
 				
@@ -63,6 +70,8 @@ export class ReservationService {
 
 				const roomDetails = await this.#dbContext.runSelectQuery(roomDetailsQuery);
 
+				console.log(roomDetails)
+
 				const response = [];
 				for(const rs of reservations) {
 					const resObj = {...rs};
@@ -70,11 +79,11 @@ export class ReservationService {
 					response.push(resObj);
 				}
 
-				resObj.reservations = response;
+				resObj.success = response;
 				return resObj;
 			}
 
-			resObj.reservations = [];
+			resObj.success = [];
 			return resObj;
 
 		} catch (error) {

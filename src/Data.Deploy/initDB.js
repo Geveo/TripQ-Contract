@@ -287,37 +287,47 @@ export class DBInitializer {
 
 
         // // Inserting hotels
-        // let hotels = `INSERT INTO Hotels(Id, HotelWalletAddress, HotelNftId, Name, Address, Email, IsRegistered) VALUES 
-        //                 (1, "rpnzMDvKfN1ewJs4ddSRXFFZQF6Ubmhkqx", "000B013A95F14B0044F78A264E41713C64B5F89242540EE208C3098E00000D65", "Hotel Mandara Rosen", "Kataragama", "test1@gmail.com", 1),
-        //                 (2, "rfKk9cRbspDzo62rbWniTMQX93FfCt8w5o", "000B013A95F14B0044F78A264E41713C64B5F89242540EE208C3098E00000D66", "Hotel Hilton", "Colombo 1", "hilton.lk@gmail.com", 1),
-        //                 (3, "rLkLngcLBKfiYRL32Ygk4WYofBudgii3zk", "000B013A95F14B0044F78A264E41713C64B5F89242540EE208C3098E00000D67", "Hotel Galadari", "Colombo 1", "galadari@gmail.com", 1)`;
+        let hotels = `INSERT INTO HOTELS (Name, Description, StarRatings, ContactDetails, Location, Facilities, WalletAddress, CreatedOn, LastUpdatedOn)
+						VALUES
+						('Hotel A', 'Description A', 4, 'Contact A', 'Location A', 'Facilities A', 'WalletAddress A', 1647004800, 1647004800),
+						('Hotel B', 'Description B', 3, 'Contact B', 'Location B', 'Facilities B', 'WalletAddress B', 1647004800, 1647004800),
+						('Hotel C', 'Description C', 5, 'Contact C', 'Location C', 'Facilities C', 'WalletAddress C', 1647004800, 1647004800),
+						('Hotel D', 'Description D', 2, 'Contact D', 'Location D', 'Facilities D', 'WalletAddress D', 1647004800, 1647004800)
+						`;
 
-        // await this.#runQuery(hotels);
+        await this.#runQuery(hotels);
 
-        // // Inserting Rooms
-        // let rooms = `INSERT INTO Rooms(Id, HotelId, RoomNftId, Name) VALUES
-        //                 (1, 1, "000B013A95F14B0044F78A264E41713C64B5F8924254055E208C3098E00000D65", "Sea-View Room"),
-        //                 (2, 1, "000B013A95F14B0044F78A264E41713C64B5F89242540EE208C3098E00000D33", "Coconut-Grove Room"),
-        //                 (3, 1, "000B013A95F14B0044F78A264E41713C64B5F89242540EEDD08C3098E00000D65", "Presidential Room"),
-        //                 (4, 2, "000B013A95F14B0044F78A264E41713C64B5F89242540EE20866098E00000D65", "Presidential Room"),
-        //                 (5, 2, "000B013A95F14B0044F78A264E41713C64B5F89242540EE208CFEWF98E00000D65", "Beach-View Room"),
-        //                 (6, 2, "000B013A95F14B0044F78A264E41713C64B5F89242540EE208VDFV98E00000D65", "Ever-Green Room"),
-        //                 (7, 2, "000B013A95F14B0044F78A264E41713C64B5F89242540EE208CVD098E00000D65", "Double Bed Room"),
-        //                 (14, 1, "000B013A95F14B0044F78A264E41713C64B5F89242540VDFDFDFF098E00000D65", "Tripple Bed Room"),
-        //                 (8, 1, "000B013A95F14B0044F78A264E41713C64B5F892425SDDSFDFDC3098E00000D65", "Single Bed Room"),
-        //                 (9, 1, "000B013A95F14B0044F78A264E41713C64B5F89242SDCVDSSDVC3098E00000D65", "Single Bed Green View Room"),
-        //                 (10, 1, "000B013A95F14B0044F78A264E41713C64B5F89242540EE208C3098E00000D65", "Non-AC Room"),
-        //                 (11, 3, "000B013A95F14B0044F78A264E41713C64B5F89242540EEFVDV3098E00000D65", "Presidential Room"),
-        //                 (12, 3, "000B013A95F14B0044F78A264E41713C64B5F892425VDFVFVDF3098E00000D65", "Single Bed Room"),
-        //                 (13, 2, "000B013A95F14B0044F78A264E41713C64B5F89242540EE208D3098E00000D65", "Sea-View Blue Room")`;
-        // await this.#runQuery(rooms);
+        // // Inserting RoomTypes
+        let roomTypes = `INSERT INTO ROOMTYPES (HotelId, Code, Sqft, Description, RoomsCount, Price, SingleBedCount, DoubleBedCount, TripleBedCount, CreatedOn, LastUpdatedOn)
+							VALUES
+							(1, 'Code A', 300, 'Description A', 10, '100', 2, 3, 1, 1647004800, 1647004800),
+							(1, 'Code B', 350, 'Description B', 12, '120', 3, 4, 2, 1647004800, 1647004800),
+							(2, 'Code C', 400, 'Description C', 15, '150', 3, 5, 1, 1647004800, 1647004800),
+							(2, 'Code D', 450, 'Description D', 18, '180', 4, 6, 2, 1647004800, 1647004800)
+							`;
+        await this.#runQuery(roomTypes);
 
-        // // Inserting Bookings
-        // let bookings = `INSERT INTO Bookings(Id, RoomId, PersonName, UserPubkey, FromDate, ToDate) VALUES
-        //                     (1, 1, "Andrew", "000B013A95F14B0044F78A264E41713C64B5F89242540EE208", "2022-8-10", "2022-8-15"),
-        //                     (2, 1, "Ravi", "000B013A95F14B0044F78A264E41713C64B5F89242540EE210", "2022-9-3", "2022-9-10"),
-        //                     (3, 5, "Perera", "000B013A95F14B0044F78A264E41713C64B5F89242540EE209",  "2022-8-31", "2022-9-2")`;
-        // await this.#runQuery(bookings);
+        // // Inserting Reservations
+        let reservations = `INSERT INTO RESERVATIONS (WalletAddress, Price, FromDate, ToDate, NoOfNights, FirstName, LastName, Email, Country, Telephone, HotelId, CreatedOn, LastUpdatedOn)
+							VALUES
+							('WalletAddress A', 200.50, '2024-03-11', '2024-03-15', 4, 'John', 'Doe', 'john.doe@example.com', 'USA', '123456789', 1, 1647004800, 1647004800),
+							('WalletAddress B', 300.75, '2024-03-12', '2024-03-16', 4, 'Jane', 'Doe', 'jane.doe@example.com', 'Canada', '987654321', 2, 1647004800, 1647004800),
+							('WalletAddress C', 150.25, '2024-03-13', '2024-03-17', 4, 'Alice', 'Smith', 'alice.smith@example.com', 'UK', '741852963', 1, 1647004800, 1647004800),
+							('WalletAddress D', 250.90, '2024-03-14', '2024-03-18', 4, 'Bob', 'Smith', 'bob.smith@example.com', 'Australia', '369258147', 2, 1647004800, 1647004800);
+		`;
+        await this.#runQuery(reservations);
+
+		// // Inserting RESERVATIONROOMTYPES 
+		let reservationRoomTypes = `INSERT INTO RESERVATIONROOMTYPES (RoomTypeId, ReservationId, NoOfRooms, CreatedOn, LastUpdatedOn)
+									VALUES
+									(1, 1, 2, 1647004800, 1647004800),
+									(2, 1, 5, 1647004800, 1647004800),
+									(3, 3, 2, 1647004800, 1647004800),
+									(4, 4, 1, 1647004800, 1647004800);
+		`;
+		await this.#runQuery(reservationRoomTypes);
+
+
     }
 
 	static #runQuery(query, params = null) {
