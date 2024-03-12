@@ -63,8 +63,51 @@ export class ReservationService {
 		} finally {
 			this.#dbContext.close();
 		}
-
     }
 
+	async makeReservations() {
+		let resObj = {};
 
+		try {
+			this.#dbContext.open();
+			console.log(this.#message)
+			const data = this.#message.data;
+			const reservationEntity = {
+				WalletAddress: data.WalletAddress,
+				Price: data.Price,
+				FromDate: data.FromDate,
+				ToDate: data.ToDate,
+				NoOfNights: data.NoOfNights,
+				FirstName: data.FirstName,
+				LastName: data.LastName,
+				Email: data.Email,
+				Country: data.Country,
+				Telephone: data.Telephone,
+				HotelId: data.HotelId,
+			};
+
+			// Saving to the reservation table
+			const rowId = await this.#dbContext.insertValue(Tables.RESERVATIONS, reservationEntity);
+			const roomTypes = JSON.parse(this.#message.data.RoomTypes);
+			
+			roomTypes.forEach(async roomType => {
+				const roomTypeEntity = {
+					RoomTypeId: roomType.RoomTypeId,
+					ReservationId: rowId.lastId,
+					NoOfRooms: roomType.NoOfRooms,
+				}
+				try {
+					await this.#dbContext.insertValue(Tables.RESERVATIONROOMTYPES, roomTypeEntity);
+				} catch (error) {
+					throw `Error occured in room types saving: ${e}`;
+				}
+			});
+			
+			resObj.success = { rowId: rowId };
+			return resObj;
+		} catch (error) {
+		} finally {
+			this.#dbContext.close();
+		}
+	}
 }
