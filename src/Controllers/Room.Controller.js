@@ -23,6 +23,9 @@ export class RoomController {
 				case "GetRoomTypes":
 					return await this.#service.getRoomTypes();
 					break;
+				case "GetRoomTypeById":
+					return await this.#service.GetRoomTypeById();
+					break;
 				case "EditRoomTypes":
 					return await this.#service.editRoomTypes();
 					break;

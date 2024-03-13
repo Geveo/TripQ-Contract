@@ -151,6 +151,86 @@ export class RoomService {
 		}*/
 		
 	}
+
+	async GetRoomTypeById() {
+        let resObj = {};
+       // let debugCode = 0;
+
+        try {
+			await this.#dbContext.open();
+			console.log(this.#message);
+			
+			const roomTypeQuery = `
+            SELECT 
+                Id AS RoomTypeId, 
+                Code AS RoomTypeCode, 
+                Sqft AS Sqft, 
+                Description AS RoomTypeDescription, 
+                Price AS Price, 
+				RoomsCount AS RoomsCount,
+                SingleBedCount AS SingleBedCount, 
+                DoubleBedCount AS DoubleBedCount, 
+                TripleBedCount AS TripleBedCount
+            FROM 
+                ROOMTYPES
+            WHERE 
+                Id = ?
+        `;
+
+        const facilitiesQuery = `
+            SELECT 
+                f.Id AS FacilityId, 
+                f.Name AS FacilityName, 
+                f.Description AS FacilityDescription
+            FROM 
+                FACILITIES AS f
+            INNER JOIN 
+                ROOMFACILITIES AS rf ON f.Id = rf.FacilityId
+            WHERE 
+                rf.RoomTypeId = ?
+        `;
+		console.log("facilitiesQuery", facilitiesQuery);
+		console.log("roomTypeQuery", roomTypeQuery);
+			
+		const roomTypeRows = await this.#dbContext.runSelectQuery(roomTypeQuery, [this.#message.data.RTypeId]);
+        console.log("roomTypeRows", roomTypeRows);    
+		if (roomTypeRows.length === 0) {
+                throw new Error('No room type found with the provided ID');
+            }
+            const roomType = roomTypeRows[0];
+            
+            const facilitiesRows = await this.#dbContext.runSelectQuery(facilitiesQuery, [this.#message.data.RTypeId]);
+            console.log("facilitiesRows", facilitiesRows); 
+			const facilities = facilitiesRows.map(row => ({
+                id: row.FacilityId,
+                name: row.FacilityName,
+                description: row.FacilityDescription
+            }));
+			 resObj.success = {
+                roomType: {
+                    id: roomType.RoomTypeId,
+                    Code: roomType.RoomTypeCode,
+                    Sqft: roomType.Sqft,
+                    Description: roomType.RoomTypeDescription,
+                    Price: roomType.Price,
+					RoomsCount: roomType.RoomsCount,
+                    SingleBedCount: roomType.SingleBedCount,
+                    DoubleBedCount: roomType.DoubleBedCount,
+                    TripleBedCount: roomType.TripleBedCount
+                },
+                Facilities: facilities
+            };
+			console.log("resObj", resObj); 
+			return resObj;
+       
+
+        } catch (error) {
+			console.error('Error fetching room type details:', error);
+			throw error;
+        } finally {
+            this.#dbContext.close();
+        }
+    }
 	
 	async editRoomType() {
 		let resObj = {};
