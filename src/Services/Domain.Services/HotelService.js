@@ -122,13 +122,10 @@ export class HotelService {
                         (R.FromDate <= ? AND R.ToDate >= ?)
                     )`;
 					
-					await this.#dbContext.runSelectQuery(availableRoomsQuery,
-						 [hotel.Id, fromDate, toDate, fromDate, toDate, fromDate, toDate],
-						 (err, availableRooms) => {
-                    if (err) {
-                        reject(err);
-                        return;
-                    }
+					const availableRooms = await this.#dbContext.runSelectQuery(availableRoomsQuery,
+						 [hotel.Id, fromDate, toDate, fromDate, toDate, fromDate, toDate]);
+
+						 console.log("availableRooms :",availableRooms)
 
                      // Calculate total available sleep capacity across all available rooms
 					 const totalAvailableCapacity = availableRooms.reduce((totalCapacity, room) => {
@@ -145,8 +142,7 @@ export class HotelService {
                         resolve(availableHotels);
                     }
                 });
-            });
-
+				console.log("availableHotels :",availableHotels)
 			response.success = availableHotels;
 			return response;
 
