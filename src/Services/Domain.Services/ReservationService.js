@@ -116,7 +116,7 @@ export class ReservationService {
 
 			// Saving to the reservation table
 			const rowId = await this.#dbContext.insertValue(Tables.RESERVATIONS, reservationEntity);
-			const roomTypes = JSON.parse(this.#message.data.RoomTypes);
+			const roomTypes = this.#message.data.RoomTypes;
 			
 			roomTypes.forEach(async roomType => {
 				const roomTypeEntity = {

@@ -21,6 +21,9 @@ export class HotelController {
 				case "GetHotelImagesById":
 					return await this.#service.getHotelImagesById();
 					break;
+				case "GetHotelById":
+					return await this.#service.getHotelById();
+					break;
 				default:
 					break;
 			}
