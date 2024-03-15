@@ -3,7 +3,7 @@ const settings = require("../../settings.json").settings;
 const { SqliteDatabase } = require("../Common.Services/dbHandler").default;
 const { SharedService } = require("../Common.Services/SharedService");
 import { Tables } from "../../Constants/Tables";
-import {HotelDto} from "../../Dto/HotelDto";
+import { HotelDto } from "../../Dto/HotelDto";
 
 export class HotelService {
 	#message = null;
@@ -46,7 +46,10 @@ export class HotelService {
 
 					if (await this.#dbContext.isTableExists(Tables.HOTELIMAGES)) {
 						try {
-							await this.#dbContext.insertValue(Tables.HOTELIMAGES, imageEntity);
+							await this.#dbContext.insertValue(
+								Tables.HOTELIMAGES,
+								imageEntity
+							);
 						} catch (error) {
 							throw `Error occured in image saving: ${e}`;
 						}
@@ -57,7 +60,6 @@ export class HotelService {
 			}
 
 			resObj.success = { rowId: rowId };
-			console.log("resObj.success ",resObj.success )
 			return resObj;
 		} catch (error) {
 		} finally {
@@ -359,66 +361,117 @@ export class HotelService {
 	// 	}
 	// }
 	async getHotelsListByWalletAddress() {
-        let resObj = {};
-        let debugCode = 0;
+		let resObj = {};
+		let debugCode = 0;
 
-        try {
+		try {
 			await this.#dbContext.open();
 			console.log(this.#message);
-			
-			const hotels = await this.#dbContext.getValues(Tables.HOTELS, { WalletAddress: this.#message.filters.WalletAddress });
-			
-			debugCode++;
-			
-			resObj.success = hotels.length === 0 ? [] : hotels.map(hotel => {
-				const hotelObj = new HotelDto();
-				hotelObj.id = hotel.Id;
-				hotelObj.name = hotel.Name;
-				hotelObj.starRate = hotel.StarRatings;
-				hotelObj.contactDetails = hotel.ContactDetails;
-				hotelObj.location = hotel.Location;
-				hotelObj.facilities = hotel.Facilities;
-				hotelObj.walletAddress = hotel.WalletAddress;
-				hotelObj.description = hotel.Description;
-				return hotelObj; 
+
+			const hotels = await this.#dbContext.getValues(Tables.HOTELS, {
+				WalletAddress: this.#message.filters.WalletAddress,
 			});
-			
+
+			debugCode++;
+
+			resObj.success =
+				hotels.length === 0
+					? []
+					: hotels.map(hotel => {
+							const hotelObj = new HotelDto();
+							hotelObj.id = hotel.Id;
+							hotelObj.name = hotel.Name;
+							hotelObj.starRate = hotel.StarRatings;
+							hotelObj.contactDetails = hotel.ContactDetails;
+							hotelObj.location = hotel.Location;
+							hotelObj.facilities = hotel.Facilities;
+							hotelObj.walletAddress = hotel.WalletAddress;
+							hotelObj.description = hotel.Description;
+							return hotelObj;
+					  });
+
 			debugCode++;
 			console.log(resObj);
-			
+
 			return resObj;
-			
-        } catch (error) {
-           console.log("Error in listing hotels")
-        } finally {
-            this.#dbContext.close();
-        }
-    }
+		} catch (error) {
+			console.log("Error in listing hotels");
+		} finally {
+			this.#dbContext.close();
+		}
+	}
 
 	async getHotelImagesById() {
-        let resObj = {};
-        let debugCode = 0;
+		let resObj = {};
+		let debugCode = 0;
 
-        try {
+		try {
 			await this.#dbContext.open();
 			console.log(this.#message);
-			
-			const hotelImages = await this.#dbContext.getValues(Tables.HOTELIMAGES, { HotelId: this.#message.filters.Id });
-	
+
+			const hotelImages = await this.#dbContext.getValues(Tables.HOTELIMAGES, {
+				HotelId: this.#message.filters.Id,
+			});
+
 			debugCode++;
-			
+
 			resObj.success = hotelImages;
-			
+
 			debugCode++;
-			
+
 			return resObj;
+		} catch (error) {
+			console.log("Error in listing hotel images");
+		} finally {
+			this.#dbContext.close();
+		}
+	}
+
+	async getHotelById() {
+		let resObj = {};
+		let debugCode = 0;
+
+		console.log("Taking hotels by Id...............");
+		try {
+			await this.#dbContext.open();
+
+			const hotel = await this.#dbContext.getValues(Tables.HOTELS, {
+				Id: this.#message.filters.Id,
+			});
+
+			const hotelDetails = new HotelDto();
+			hotelDetails.id = hotel.Id;
+			hotelDetails.name = hotel.Name;
+			hotelDetails.starRate = hotel.StarRatings;
+			hotelDetails.contactDetails = hotel.ContactDetails;
+			hotelDetails.location = hotel.Location;
+			hotelDetails.facilities = hotel.Facilities;
+			hotelDetails.walletAddress = hotel.WalletAddress;
+			hotelDetails.description = hotel.Description;
 			
-        } catch (error) {
-           console.log("Error in listing hotel images")
-        } finally {
-            this.#dbContext.close();
-        }
-    }
+			const hotelImages = await this.#dbContext.getValues(Tables.HOTELIMAGES, {
+				HotelId: this.#message.filters.Id,
+			});
+			debugCode++;
+
+			console.log("Hotel details", hotel);
+			console.log(hotelImages);
+			
+			resObj.success = {
+                hotelDetails: hotel,
+                hotelImages: hotelImages,
+            };
+
+			console.log(resObj);
+			debugCode++;
+
+			return resObj;
+		} catch (error) {
+			console.log("Error in listing hotel images");
+		} finally {
+			this.#dbContext.close();
+		}
+	}
 
 	// async #getHotels() {
 	// 	let query = `SELECT Hotels.Id, Hotels.HotelWalletAddress, Hotels.HotelNftId, Hotels.OwnerName, Hotels.Name, Hotels.Description, Hotels.AddressLine1, Hotels.AddressLine2, Hotels.City, Hotels.DistanceFromCenter, Hotels.Email, Hotels.ContactNumber1,
