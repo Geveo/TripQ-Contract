@@ -67,21 +67,23 @@ export class HotelService {
 
 
 	async getHotelsWithRoomSearch() {
-        const response = {};
+		try {
+			await this.#dbContext.open();
+			const response = {};
         if (!this.#message.filters) {
             throw ("Invalid request.");
         }
         const filters = this.#message.filters;
+		console.log("filters:", filters);
         const guestCount = this.#message.filters.GuestCount;
-        const fromDate = new Date(filters.CheckInDate);
-        const toDate = new Date(filters.CheckOutDate);
-
-        const filteringDateRange = DateHelper.getDatesArrayInBewtween(fromDate, toDate);
-        console.log("DateRange", filteringDateRange, " length: ", filteringDateRange.length);
-
-        console.log(1);
+        const fromDate = filters.CheckInDate;
+        const toDate = filters.CheckOutDate;
+		
         let query = `SELECT * FROM Hotels WHERE Location LIKE '%${filters.City}%'`;
         let hotelRows = await this.#dbContext.runSelectQuery(query);
+
+		console.log(hotelRows)
+
         if (!(hotelRows && hotelRows.length > 0)) {
             response.success = null;
             return response;
@@ -90,7 +92,6 @@ export class HotelService {
         let hotelIdList = hotelRows.map(hr => hr.Id);
         console.log(hotelIdList)
         query = `SELECT * FROM ROOMTYPES WHERE HotelId IN (${hotelIdList})`;
-        console.log("query 2",query)
 
         let roomsList = await this.#dbContext.runSelectQuery(query);
         if (!roomsList || roomsList.length < 1) {
@@ -100,6 +101,7 @@ export class HotelService {
 
 		//hotelIds having rooms
         hotelIdList = [...new Set(roomsList.map(rl => rl.HotelId))];
+		console.log("hotelIdList: ",hotelIdList)
 		//Hotels having rooms 
         hotelRows = hotelRows.filter(hr => hotelIdList.includes(hr.Id));
 
@@ -107,44 +109,63 @@ export class HotelService {
 		const availableHotels = [];
 		
             // Iterate through each hotel
-            hotelRows.forEach(async hotel => {
-                // Query to retrieve available rooms for the specified dates
-					const availableRoomsQuery = `
-                    SELECT DISTINCT RT.*
-                    FROM ROOMTYPES RT
-                    LEFT JOIN RESERVATIONROOMTYPES RRT ON RT.Id = RRT.RoomTypeId
-                    LEFT JOIN RESERVATIONS R ON RRT.ReservationId = R.Id
-                    WHERE RT.HotelId = ? AND (
-                        (R.FromDate <= ? AND R.ToDate >= ?)
-                        OR
-                        (R.FromDate >= ? AND R.ToDate <= ?)
-                        OR
-                        (R.FromDate <= ? AND R.ToDate >= ?)
-                    )`;
+			for(const hotel of hotelRows ){
+				// Query to retrieve available rooms for the specified dates
+						const availableRoomsQuery = `SELECT rt.Id AS RoomTypeId,
+							rt.Code AS RommType,
+							CASE
+								WHEN SUM(rrt.NoOfRooms) IS NULL THEN 0
+								ELSE SUM(rrt.NoOfRooms)
+							END TotalBookedRooms,
+							CASE
+								WHEN SUM(rrt.NoOfRooms) IS NULL THEN rt.RoomsCount - 0
+								ELSE rt.RoomsCount - SUM(rrt.NoOfRooms)
+							END AvailableRoomCount,
+							rt.RoomsCount AS TotalRoom,
+							rt.TotalSleeps AS TotalSleepCapacity
+						FROM RoomTypes rt
+							left join ReservationRoomTypes rrt on rt.Id = rrt.RoomtypeId 
+							left join Reservations r on r.Id = rrt.ReservationId 
+						where rt.HotelId = ? AND
+							((r.Id IS NULL AND rrt.Id IS NULL) OR (r.FromDate > ? OR r.ToDate < ?))
+						group by rt.Id`;
+
+						console.log("hotel.Id :",hotel.Id)
 					
 					const availableRooms = await this.#dbContext.runSelectQuery(availableRoomsQuery,
-						 [hotel.Id, fromDate, toDate, fromDate, toDate, fromDate, toDate]);
+						 [hotel.Id, toDate, fromDate]);
 
 						 console.log("availableRooms :",availableRooms)
+						 /*rt.Id AS RoomTypeId,
+						rt.RoomsCount - COALESCE(SUM(rrt.NoOfRooms), 0) AS AvailableRoomCount,
+						TotalSleeps AS TotalSleepCapacity
+						AND
+						(r.Id IS NULL OR (r.FromDate > '?' OR r.ToDate > '?'))
+
+						AND ((r.Id IS NULL AND rrt.Id IS NULL) OR ((r.Id IS NOT NULL AND rrt.Id IS NOT NULL) AND r.HotelId = rt.HotelId AND r.Id = rrt.ReservationId))  
+						*/
 
                      // Calculate total available sleep capacity across all available rooms
 					 const totalAvailableCapacity = availableRooms.reduce((totalCapacity, room) => {
-                        return totalCapacity + room.TotalSleeps;
+                        return totalCapacity + room.TotalSleepCapacity*room.AvailableRoomCount;
                     }, 0);
+					console.log("totalAvailableCapacity :",totalAvailableCapacity)
 
                     // Check if total available capacity is sufficient for the guest count
                     if (totalAvailableCapacity >= guestCount) {
                         availableHotels.push(hotel);
                     }
 
-                    // Resolve the promise with the filtered hotels after iterating through all hotels
-                    if (hotelRows.indexOf(hotel) === hotelRows.length - 1) {
-                        resolve(availableHotels);
-                    }
-                });
-				console.log("availableHotels :",availableHotels)
+                };
+			console.log("availableHotels :",availableHotels)
 			response.success = availableHotels;
 			return response;
+		}catch(error) {
+			console.log("Error in getting hotels with available rooms")
+		} finally {
+			this.#dbContext.close();
+		}
+        
 
 
 /*

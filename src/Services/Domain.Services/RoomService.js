@@ -25,6 +25,18 @@ export class RoomService {
 		const data = this.#message.data;
 
      try {
+
+		let sleeps = 0;
+		if(data.SingleBedCount>0){
+		   sleeps += data.SingleBedCount*1
+		}
+		if(data.DoubleBedCount>0){
+		   sleeps += data.DoubleBedCount*2
+		}
+		if(data.TripleBedCount>0){
+		   sleeps += data.TripleBedCount*3
+		}
+		
 		const roomType = {
 			HotelId: data.HotelId,
 			Code: data.Code,
@@ -34,7 +46,8 @@ export class RoomService {
 			SingleBedCount: data.SingleBedCount,
 			DoubleBedCount: data.DoubleBedCount,
 			TripleBedCount: data.TripleBedCount,
-			Price: data.Price
+			Price: data.Price,
+			TotalSleeps: sleeps
 		};
 		// Saving to the roomType table
 			const rmTId = (await this.#dbContext.insertValue(Tables.ROOMTYPES, roomType));
