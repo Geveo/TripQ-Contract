@@ -67,6 +67,222 @@ export class HotelService {
 		}
 	}
 
+
+	async getHotelsWithRoomSearch() {
+		try {
+			await this.#dbContext.open();
+			const response = {};
+        if (!this.#message.filters) {
+            throw ("Invalid request.");
+        }
+        const filters = this.#message.filters;
+		console.log("filters:", filters);
+        const guestCount = this.#message.filters.GuestCount;
+        const fromDate = filters.CheckInDate;
+        const toDate = filters.CheckOutDate;
+		
+        let query = `SELECT * FROM Hotels WHERE Location LIKE '%${filters.City}%'`;
+        let hotelRows = await this.#dbContext.runSelectQuery(query);
+
+		console.log(hotelRows)
+
+        if (!(hotelRows && hotelRows.length > 0)) {
+            response.success = null;
+            return response;
+        }
+
+        let hotelIdList = hotelRows.map(hr => hr.Id);
+        console.log(hotelIdList)
+        query = `SELECT * FROM ROOMTYPES WHERE HotelId IN (${hotelIdList})`;
+
+        let roomsList = await this.#dbContext.runSelectQuery(query);
+        if (!roomsList || roomsList.length < 1) {
+            response.success = null;
+            return response;
+        }
+
+		//hotelIds having rooms
+        hotelIdList = [...new Set(roomsList.map(rl => rl.HotelId))];
+		console.log("hotelIdList: ",hotelIdList)
+		//Hotels having rooms 
+        hotelRows = hotelRows.filter(hr => hotelIdList.includes(hr.Id));
+
+		// Array to store filtered hotels
+		const availableHotels = [];
+		
+            // Iterate through each hotel
+			for(const hotel of hotelRows ){
+				// Query to retrieve available rooms for the specified dates
+						const availableRoomsQuery = `SELECT rt.Id AS RoomTypeId,
+							rt.Code AS RommType,
+							CASE
+								WHEN SUM(rrt.NoOfRooms) IS NULL THEN 0
+								ELSE SUM(rrt.NoOfRooms)
+							END TotalBookedRooms,
+							CASE
+								WHEN SUM(rrt.NoOfRooms) IS NULL THEN rt.RoomsCount - 0
+								ELSE rt.RoomsCount - SUM(rrt.NoOfRooms)
+							END AvailableRoomCount,
+							rt.RoomsCount AS TotalRoom,
+							rt.TotalSleeps AS TotalSleepCapacity
+						FROM RoomTypes rt
+							left join ReservationRoomTypes rrt on rt.Id = rrt.RoomtypeId 
+							left join Reservations r on r.Id = rrt.ReservationId 
+						where rt.HotelId = ? AND
+							((r.Id IS NULL AND rrt.Id IS NULL) OR (r.FromDate > ? OR r.ToDate < ?))
+						group by rt.Id`;
+
+						console.log("hotel.Id :",hotel.Id)
+					
+					const availableRooms = await this.#dbContext.runSelectQuery(availableRoomsQuery,
+						 [hotel.Id, toDate, fromDate]);
+
+						 console.log("availableRooms :",availableRooms)
+						 /*rt.Id AS RoomTypeId,
+						rt.RoomsCount - COALESCE(SUM(rrt.NoOfRooms), 0) AS AvailableRoomCount,
+						TotalSleeps AS TotalSleepCapacity
+						AND
+						(r.Id IS NULL OR (r.FromDate > '?' OR r.ToDate > '?'))
+
+						AND ((r.Id IS NULL AND rrt.Id IS NULL) OR ((r.Id IS NOT NULL AND rrt.Id IS NOT NULL) AND r.HotelId = rt.HotelId AND r.Id = rrt.ReservationId))  
+						*/
+
+                     // Calculate total available sleep capacity across all available rooms
+					 const totalAvailableCapacity = availableRooms.reduce((totalCapacity, room) => {
+                        return totalCapacity + room.TotalSleepCapacity*room.AvailableRoomCount;
+                    }, 0);
+					console.log("totalAvailableCapacity :",totalAvailableCapacity)
+
+                    // Check if total available capacity is sufficient for the guest count
+                    if (totalAvailableCapacity >= guestCount) {
+                        availableHotels.push(hotel);
+                    }
+
+                };
+			console.log("availableHotels :",availableHotels)
+			response.success = availableHotels;
+			return response;
+		}catch(error) {
+			console.log("Error in getting hotels with available rooms")
+		} finally {
+			this.#dbContext.close();
+		}
+        
+
+
+/*
+
+        let roomIdList = roomsList.map(rl => rl.Id);
+        console.log("HotelRawssSS: ", hotelRows )
+
+        query = `SELECT * from Reservations WHERE RoomTypeId IN (${roomIdList})`;
+        const reservationList = await this.#dbContext.runSelectQuery(query);
+        console.log('Reservationlist: ' ,reservationList)
+
+		// No reservation means, all the rooms are free for new reservations
+        if (!reservationList || reservationList.length < 1) 
+		{  roomsList = roomsList.filter(r => r.MaxRoomCount >= necessaryRoomCount);
+            hotelIdList = [...new Set(roomsList.map(rl => rl.HotelId))];
+            hotelRows = hotelRows.filter(hr => hotelIdList.includes(hr.Id));
+            console.log(44)
+            const resultList = await this.#prepareSearchResultPhase2(hotelRows, roomsList, filteringDateRange.length);
+            response.success = { searchResult: resultList };
+            return response;
+        }
+        console.log(4)
+        // Filter avaialble roomList by checking the avaialble reservation dates
+
+        // First, create an array of rooms  with their reservedDates and count as arrays.
+        let availableRoomList = [];
+        console.log(5);
+        for (let room of roomsList) {
+            let roomObj1 = { roomId: room.Id, maxRoomCount: room.MaxRoomCount, ...room, checkedDates: [], roomCounts: [] }
+            const reservedDates = [];
+            const reservedRoomCounts = [];
+            reservationList.forEach(rv => {
+                if (rv.RoomId == room.Id) {
+                    reservedDates.push({ checkInDate: rv.FromDate, checkOutDate: rv.ToDate })
+                    reservedRoomCounts.push(rv.RoomCount);
+                }
+            });
+            roomObj1.checkedDates = reservedDates;
+            roomObj1.roomCounts = reservedRoomCounts;
+            availableRoomList.push(roomObj1);
+        }
+
+        console.log("RoomList111: ", roomsList);
+
+        // Second, loop the room objects and their reserved dates for availability check. 
+        // If 
+        console.log(6);
+        const removingRoomIds = [];
+        for (const idx in availableRoomList) {
+            const roomObj = availableRoomList[idx];
+            console.log("Room obj:", idx,  roomObj);
+            if (roomObj.checkedDates.length == 0) {
+                continue;
+            }
+
+            for (let filterDate of filteringDateRange) {
+                let reservedRoomCount = 0;
+                for (const dateIdx in roomObj.checkedDates) {
+                    const reservedRange = (roomObj.checkedDates)[dateIdx];
+                    if (DateHelper.isDateInRange(filterDate, reservedRange.checkInDate, reservedRange.checkOutDate)) {
+                        reservedRoomCount += (roomObj.roomCounts)[dateIdx];
+                    }
+                }
+
+                console.log("Date: ", filterDate, "RoomId: ", roomObj.roomId, "reservedRoomCount: ", reservedRoomCount, "necessaryRoomCount: ", necessaryRoomCount, "maxRoomCount: ", roomObj.maxRoomCount );
+                if ((Number(reservedRoomCount) + Number(necessaryRoomCount)) > Number(roomObj.maxRoomCount)) {
+                    removingRoomIds.push(roomObj.roomId);
+                }
+            }
+        }
+
+        console.log("Removing Id List: ", removingRoomIds);
+
+        console.log(7);
+        availableRoomList = availableRoomList.filter(ar => !removingRoomIds.includes(ar.roomId));
+        console.log("Avaialble room list: ", availableRoomList);
+
+        hotelIdList = [...new Set(availableRoomList.map(rl => rl.HotelId))];
+        hotelRows = hotelRows.filter(hr => hotelIdList.includes(hr.Id));
+
+        const resultList = await this.#prepareSearchResultPhase2(hotelRows, availableRoomList, filteringDateRange.length);
+        console.log(8);
+        console.log(resultList)
+        response.success = { searchResult: resultList };
+        return response;*/
+    }
+/*
+	async #prepareSearchResultPhase2(hotelList, roomList, noOfDays = 0) {
+		const resultList = [];
+
+		for (const hotel of hotelList) {
+			// Get one image url if exists for the hotel
+			let query = `SELECT Id, Url FROM Images WHERE HotelId = ${hotel.Id}`;
+			const img = await this.#dbContext.runNativeGetFirstQuery(query);
+
+			const hotelObj = {
+				Id: hotel.Id,
+				city: hotel.City,
+				Name: hotel.Name,
+				noOfDays: noOfDays,
+				roomDetails: [],
+			};
+			if (img) {
+				hotelObj.ImageUrl = img.Url;
+			}
+			roomList.forEach(r => {
+				if (hotel.Id == r.HotelId) {
+					hotelObj.roomDetails.push(r);
+				}
+			});
+
+			resultList.push(hotelObj);
+		}
+		return resultList;
+	}
 	// async #checkIfHotelExists(walletAddress) {
 	// 	const query = `SELECT * FROM HOTELS WHERE HotelWalletAddress = ?`;
 	// 	try {
@@ -82,7 +298,7 @@ export class HotelService {
 	// 		throw error;
 	// 	}
 	// }
-
+*/
 	// async #getAnAvailableOffer() {
 	// 	try {
 	// 		const createdOffers = await this.#contractAcc.getNftOffers();
@@ -675,34 +891,7 @@ export class HotelService {
 	// 		return resultList;
 	// 	}
 
-	// 	async #prepareSearchResultPhase2(hotelList, roomList, noOfDays = 0) {
-	// 		const resultList = [];
-
-	// 		for (const hotel of hotelList) {
-	// 			// Get one image url if exists for the hotel
-	// 			let query = `SELECT Id, Url FROM Images WHERE HotelId = ${hotel.Id}`;
-	// 			const img = await this.#db.runNativeGetFirstQuery(query);
-
-	// 			const hotelObj = {
-	// 				Id: hotel.Id,
-	// 				city: hotel.City,
-	// 				Name: hotel.Name,
-	// 				noOfDays: noOfDays,
-	// 				roomDetails: [],
-	// 			};
-	// 			if (img) {
-	// 				hotelObj.ImageUrl = img.Url;
-	// 			}
-	// 			roomList.forEach(r => {
-	// 				if (hotel.Id == r.HotelId) {
-	// 					hotelObj.roomDetails.push(r);
-	// 				}
-	// 			});
-
-	// 			resultList.push(hotelObj);
-	// 		}
-	// 		return resultList;
-	// 	}
+	
 
 	// 	async #deregisterHotel() {
 	// 		let response = {};
