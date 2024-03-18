@@ -292,7 +292,12 @@ export class DBInitializer {
 						('Hotel 1', 'Description A', 4, 'Contact A', 'Location A', 'Facilities A', 'WalletAddress A', 1647004800, 1647004800),
 						('Hotel 2', 'Description B', 3, 'Contact B', 'Location B', 'Facilities B', 'WalletAddress B', 1647004800, 1647004800),
 						('Hotel 3', 'Description C', 5, 'Contact C', 'Location C', 'Facilities C', 'WalletAddress C', 1647004800, 1647004800),
-						('Hotel 4', 'Description D', 2, 'Contact D', 'Location D', 'Facilities D', 'WalletAddress D', 1647004800, 1647004800)
+						('Hotel 4', 'Description D', 2, 'Contact D', 'Location D', 'Facilities D', 'WalletAddress D', 1647004800, 1647004800),
+						('Hotel A', 'Description A', 4, 'Contact A', 'Location A', 'Facilities A', 'WalletAddress A', 1647004800, 1647004800),
+						('Hotel B', 'Description B', 3, 'Contact B', 'Location B', 'Facilities B', 'WalletAddress B', 1647004800, 1647004800),
+						('Hotel C', 'Description C', 5, 'Contact C', 'Location C', 'Facilities C', 'WalletAddress C', 1647004800, 1647004800),
+						('Hotel D', 'Description D', 2, 'Contact D', 'Location D', 'Facilities D', 'WalletAddress D', 1647004800, 1647004800),
+						('Hotel E', 'Description E', 2, '{"FullName":"Madushi Sarathchandra","Email":"mm@gmail.com","PhoneNumber":"0707878789"}', '{"AddressLine01":"Angankanda, Aluthwala","AddressLine02":"","City":"Ambalangoda","DistanceFromCity":"5"}', '[{"Id":9,"Name":"Restaurant","Description":"Description"},{"Id":6,"Name":"Family Room","Description":"Description"}]', 'rLuYy66zndMYVsxmqwAFrxMQjXHEmBwJDA', 1647004800, 1647004800)
 						`;
 
         await this.#runQuery(hotels);
@@ -303,7 +308,9 @@ export class DBInitializer {
 							(1, 'Code A', 300, 'Description A', 10, '100', 2, 3, 1, 1647004800, 1647004800),
 							(1, 'Code B', 350, 'Description B', 12, '120', 3, 4, 2, 1647004800, 1647004800),
 							(2, 'Code C', 400, 'Description C', 15, '150', 3, 5, 1, 1647004800, 1647004800),
-							(2, 'Code D', 450, 'Description D', 18, '180', 4, 6, 2, 1647004800, 1647004800)
+							(2, 'Code D', 450, 'Description D', 18, '180', 4, 6, 2, 1647004800, 1647004800),
+							(5, 'Code E', 450, 'Description E', 18, '180', 4, 6, 2, 1647004800, 1647004800),
+							(5, 'Code F', 450, 'Description E', 28, '180', 4, 6, 2, 1647004800, 1647004800)
 							`;
         await this.#runQuery(roomTypes);
 
@@ -312,6 +319,10 @@ export class DBInitializer {
 							VALUES
 							('WalletAddress A', 200.50, '2024-03-11', '2024-03-15', 4, 'John', 'Doe', 'john.doe@example.com', 'USA', '123456789', 1, 1647004800, 1647004800),
 							('WalletAddress B', 300.75, '2024-03-12', '2024-03-16', 4, 'Jane', 'Doe', 'jane.doe@example.com', 'Canada', '987654321', 2, 1647004800, 1647004800),
+							('WalletAddress C', 150.25, '2024-03-13', '2024-03-17', 4, 'Alice', 'Smith', 'alice.smith@example.com', 'UK', '741852963', 1, 1647004800, 1647004800),
+							('WalletAddress D', 250.90, '2024-03-14', '2024-03-18', 4, 'Bob', 'Smith', 'bob.smith@example.com', 'Australia', '369258147', 2, 1647004800, 1647004800),
+							('WalletAddress E', 250.90, '2024-03-14', '2024-03-18', 4, 'Bob', 'Smith', 'bob.smith@example.com', 'Australia', '369258147', 5, 1647004800, 1647004800),
+							('WalletAddress F', 250.90, '2024-03-14', '2024-03-18', 4, 'Bob', 'Smith', 'bob.smith@example.com', 'Australia', '369258147', 5, 1647004800, 1647004800);
 							('WalletAddress C', 150.25, '2024-03-19', '2024-03-25', 4, 'Alice', 'Smith', 'alice.smith@example.com', 'UK', '741852963', 6, 1647004800, 1647004800),
 							('WalletAddress D', 250.90, '2024-03-14', '2024-03-18', 4, 'Bob', 'Smith', 'bob.smith@example.com', 'Australia', '369258147', 2, 1647004800, 1647004800);
 		`;
@@ -324,6 +335,12 @@ export class DBInitializer {
 									(6, 3, 11, 1647004800, 1647004800),
 									(1, 2, 2, 1647004800, 1647004800),
 									(4, 4, 1, 1647004800, 1647004800);
+									(1, 1, 2, 1647004800, 1647004800),
+									(2, 1, 5, 1647004800, 1647004800),
+									(3, 3, 2, 1647004800, 1647004800),
+									(4, 4, 1, 1647004800, 1647004800),
+									(5, 5, 3, 1647004800, 1647004800),
+									(5, 6, 2, 1647004800, 1647004800);
 		`;
 		await this.#runQuery(reservationRoomTypes);
 

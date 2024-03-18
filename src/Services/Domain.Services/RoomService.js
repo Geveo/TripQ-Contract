@@ -19,7 +19,7 @@ export class RoomService {
 
 	async createRoomType() {
 		let resObj = {};
-		let roomTypeId
+		let roomTypeId;
 		this.#dbContext.open();
 
 		const data = this.#message.data;
@@ -77,37 +77,37 @@ export class RoomService {
                     }
                 }
 
-                // Save in the m2m table
-                const roomFacilityEntity = {
-                    RoomTypeId: rmTId.lastId,
-                    FacilityId: rFacilityId,
-					Quantity:  1,
-					CreatedOn: this.#date
-                }
+					// Save in the m2m table
+					const roomFacilityEntity = {
+						RoomTypeId: rmTId.lastId,
+						FacilityId: rFacilityId,
+						Quantity: 1,
+						CreatedOn: this.#date,
+					};
 
-                if (await this.#dbContext.isTableExists(Tables.ROOMFACILITIES)) {
-                    try {
-                       const roomFacility = await this.#dbContext.insertValue(Tables.ROOMFACILITIES, roomFacilityEntity);
-					  } catch (error) {
-                        throw (`Error occured in saving Room-Facility ${roomFacilityEntity.RFacilityId} `);
-                    }
-                } else {
-                    throw (`Room-Facility table not found.`);
-                }
-            }
-		}
-		resObj.success = rmTId.lastId;
-		return resObj;
-
+					if (await this.#dbContext.isTableExists(Tables.ROOMFACILITIES)) {
+						try {
+							const roomFacility = await this.#dbContext.insertValue(
+								Tables.ROOMFACILITIES,
+								roomFacilityEntity
+							);
+						} catch (error) {
+							throw `Error occured in saving Room-Facility ${roomFacilityEntity.RFacilityId} `;
+						}
+					} else {
+						throw `Room-Facility table not found.`;
+					}
+				}
+			}
+			resObj.success = rmTId.lastId;
+			return resObj;
 		} catch (error) {
 			throw new Error("Error occured in room type saving");
-		}finally{
+		} finally {
 			this.#dbContext.close();
 		}
 
-		
-
-	/*	if (roomTypeId != null) {
+		/*	if (roomTypeId != null) {
 			console.log("Saving to the roomTypeImage table");
 			// Saving to the roomTypeImage table
 			if (data.ImageUrls && data.ImageUrls.length > 0) {
@@ -162,17 +162,16 @@ export class RoomService {
 				throw new Error("Error occured in saving prices");
 			}
 		}*/
-		
 	}
 
 	async GetRoomTypeById() {
-        let resObj = {};
-       // let debugCode = 0;
+		let resObj = {};
+		// let debugCode = 0;
 
-        try {
+		try {
 			await this.#dbContext.open();
 			console.log(this.#message);
-			
+
 			const roomTypeQuery = `
             SELECT 
                 Id AS RoomTypeId, 
@@ -190,7 +189,7 @@ export class RoomService {
                 Id = ?
         `;
 
-        const facilitiesQuery = `
+			const facilitiesQuery = `
             SELECT 
                 f.Id AS FacilityId, 
                 f.Name AS FacilityName, 
@@ -202,62 +201,66 @@ export class RoomService {
             WHERE 
                 rf.RoomTypeId = ?
         `;
-		console.log("facilitiesQuery", facilitiesQuery);
-		console.log("roomTypeQuery", roomTypeQuery);
-			
-		const roomTypeRows = await this.#dbContext.runSelectQuery(roomTypeQuery, [this.#message.data.RTypeId]);
-        console.log("roomTypeRows", roomTypeRows);    
-		if (roomTypeRows.length === 0) {
-                throw new Error('No room type found with the provided ID');
-            }
-            const roomType = roomTypeRows[0];
-            
-            const facilitiesRows = await this.#dbContext.runSelectQuery(facilitiesQuery, [this.#message.data.RTypeId]);
-            console.log("facilitiesRows", facilitiesRows); 
-			const facilities = facilitiesRows.map(row => ({
-                id: row.FacilityId,
-                name: row.FacilityName,
-                description: row.FacilityDescription
-            }));
-			 resObj.success = {
-                roomType: {
-                    id: roomType.RoomTypeId,
-                    Code: roomType.RoomTypeCode,
-                    Sqft: roomType.Sqft,
-                    Description: roomType.RoomTypeDescription,
-                    Price: roomType.Price,
-					RoomsCount: roomType.RoomsCount,
-                    SingleBedCount: roomType.SingleBedCount,
-                    DoubleBedCount: roomType.DoubleBedCount,
-                    TripleBedCount: roomType.TripleBedCount
-                },
-                Facilities: facilities
-            };
-			console.log("resObj", resObj); 
-			return resObj;
-       
+			console.log("facilitiesQuery", facilitiesQuery);
+			console.log("roomTypeQuery", roomTypeQuery);
 
-        } catch (error) {
-			console.error('Error fetching room type details:', error);
+			const roomTypeRows = await this.#dbContext.runSelectQuery(roomTypeQuery, [
+				this.#message.data.RTypeId,
+			]);
+			console.log("roomTypeRows", roomTypeRows);
+			if (roomTypeRows.length === 0) {
+				throw new Error("No room type found with the provided ID");
+			}
+			const roomType = roomTypeRows[0];
+
+			const facilitiesRows = await this.#dbContext.runSelectQuery(facilitiesQuery, [
+				this.#message.data.RTypeId,
+			]);
+			console.log("facilitiesRows", facilitiesRows);
+			const facilities = facilitiesRows.map(row => ({
+				id: row.FacilityId,
+				name: row.FacilityName,
+				description: row.FacilityDescription,
+			}));
+			resObj.success = {
+				roomType: {
+					id: roomType.RoomTypeId,
+					Code: roomType.RoomTypeCode,
+					Sqft: roomType.Sqft,
+					Description: roomType.RoomTypeDescription,
+					Price: roomType.Price,
+					RoomsCount: roomType.RoomsCount,
+					SingleBedCount: roomType.SingleBedCount,
+					DoubleBedCount: roomType.DoubleBedCount,
+					TripleBedCount: roomType.TripleBedCount,
+				},
+				Facilities: facilities,
+			};
+			console.log("resObj", resObj);
+			return resObj;
+		} catch (error) {
+			console.error("Error fetching room type details:", error);
 			throw error;
-        } finally {
-            this.#dbContext.close();
-        }
-    }
-	
+		} finally {
+			this.#dbContext.close();
+		}
+	}
+
 	async editRoomType() {
 		let resObj = {};
 		const data = this.#message.data;
 
 		try {
 			this.#dbContext.open();
-			const roomType = await this.#dbContext.findById(Tables.ROOMTYPES, data.roomTypeId);
+			const roomType = await this.#dbContext.findById(
+				Tables.ROOMTYPES,
+				data.roomTypeId
+			);
 			if (!roomType) {
-				throw new Error("Room type does not exists.");}
-			else {
+				throw new Error("Room type does not exists.");
+			} else {
 				// implement editing
 			}
-
 		} catch (error) {
 			throw error;
 		} finally {
@@ -271,36 +274,36 @@ export class RoomService {
 
 		try {
 			this.#dbContext.open();
-			const roomType = await this.#dbContext.findById(Tables.ROOMTYPES, data.roomTypeId);
+			const roomType = await this.#dbContext.findById(
+				Tables.ROOMTYPES,
+				data.roomTypeId
+			);
 			if (!roomType) {
-				throw new Error("Room type does not exists.");}
-			else {
+				throw new Error("Room type does not exists.");
+			} else {
 				//check the deletion of all rooms of the type
-				if(roomType.RoomsCount == 0){
-					const result = await this.#dbContext.deleteValues(Tables.ROOMTYPES, { Id: this.#message.data.roomTypeId });
+				if (roomType.RoomsCount == 0) {
+					const result = await this.#dbContext.deleteValues(Tables.ROOMTYPES, {
+						Id: this.#message.data.roomTypeId,
+					});
 					if (result.changes > 0) {
 						resObj.success = "Successfully deleted.";
 						return resObj;
-				}
-				else{
-					throw new Error("All rooms of this type should be deleted.");
-				}
-				
+					} else {
+						throw new Error("All rooms of this type should be deleted.");
+					}
 				} else {
 					throw new Error("An error occurred in deleting room type");
 				}
 			}
-
 		} catch (error) {
 			throw error;
 		} finally {
 			this.#dbContext.close();
 		}
-
 	}
 
 	async getRoomTypes() {
-
 		let resObj = {};
 		const data = this.#message.data;
 		let rTypeObj = {};
@@ -308,11 +311,13 @@ export class RoomService {
 		//if user is an hotel owner
 		try {
 			this.#dbContext.open();
-			const rows = await this.#dbContext.getValues(Tables.ROOMTYPES, {HotelId: data.HotelId});
-			console.log("resObj:",rows);
+			const rows = await this.#dbContext.getValues(Tables.ROOMTYPES, {
+				HotelId: data.HotelId,
+			});
+			console.log("resObj:", rows);
 			resObj.success = rows;
 			return resObj;
-	/*		for (const rType of rows) {
+			/*		for (const rType of rows) {
 				rTypeObj.Code = rType.Code;
 				rTypeObj.RoomCount = rType.RoomCount;
 				rTypeObj.Sqft = rType.Sqft;
@@ -339,7 +344,104 @@ export class RoomService {
 				rTypeList.push(rTypeObj)
 
 			}*/
-			
+		} catch (error) {
+			throw error;
+		} finally {
+			this.#dbContext.close();
+		}
+	}
+
+	async getAvailableRoomCount() {
+		let resObj = {};
+		console.log(this.#message);
+
+		const hotelId = this.#message.filter.hotelId;
+		const fromDate = this.#message.filter.fromDate;
+		const toDate = this.#message.filter.toDate;
+
+		try {
+			this.#dbContext.open();
+			const query = `SELECT 
+			rt.Id AS RoomTypeId, 
+			rt.RoomsCount,
+            r.FromDate,
+            r.ToDate,
+            rr.NoOfRooms
+			FROM ROOMTYPES rt 
+			LEFT JOIN RESERVATIONROOMTYPES rr ON rt.Id = rr.RoomTypeId 
+			LEFT JOIN RESERVATIONS r 
+			ON rr.ReservationId = r.Id 
+			WHERE rt.HotelId = ? AND r.Id IS NOT NULL AND (r.FromDate > ? OR r.ToDate < ?)`;
+
+			console.log(query);
+			const roomTypeRows = await this.#dbContext.runSelectQuery(query, [
+				hotelId,
+				fromDate,
+				toDate,
+			]);
+			let roomTypeIds = [];
+			let remainingRoomTypes = [];
+
+			roomTypeRows.forEach(element => {
+				if (!roomTypeIds.includes(parseInt(element.RoomTypeId, 10))) {
+					roomTypeIds.push(parseInt(element.RoomTypeId, 10));
+				}
+			});
+
+			roomTypeIds.forEach(element => {
+				const roomTypeById = roomTypeRows.filter(
+					room => room.RoomTypeId === element
+				);
+				let bookedRoomCount = 0;
+				let totalRooms = 0;
+				roomTypeById.forEach(roomType => {
+					totalRooms = roomType.RoomsCount;
+					bookedRoomCount += roomType.NoOfRooms;
+				});
+
+				let remainingRooms = {
+					RoomTypeId: element,
+					RemainingRoomCount: totalRooms - bookedRoomCount,
+				};
+				remainingRoomTypes.push(remainingRooms);
+			});
+
+			const roomTypes = await this.#dbContext.getValues(Tables.ROOMTYPES, {
+				HotelId: hotelId,
+			});
+			let roomTypeDetails = [];
+			roomTypes.forEach(element => {
+				console.log("Element", element);
+				console.log("Room type Ids", roomTypeIds);
+				//console.log("eewrerereerere",roomTypeIds.includes(elementId))
+				let elementId = parseInt(element.Id, 10);
+				if (!roomTypeIds.includes(elementId)) {
+					roomTypeDetails.push(element);
+				} else {
+					const roomType = remainingRoomTypes.filter(
+						roomType => roomType.RoomTypeId === element.Id
+					);
+					console.log("roomType", roomType);
+					console.log("roomType", roomType[0].RemainingRoomCount);
+					let newRoomType = {
+						Id: element.Id,
+						HotelId: element.HotelId,
+						Code: element.Code,
+						Sqft: element.Sqft,
+						Description: element.Description,
+						RoomsCount: roomType[0].RemainingRoomCount,
+						Price: element.Price,
+						SingleBedCount: element.SingleBedCount,
+						DoubleBedCount: element.DoubleBedCount,
+						TripleBedCount: element.TripleBedCount,
+						CreatedOn: element.CreatedOn,
+						LastUpdatedOn: element.LastUpdatedOn,
+					};
+					roomTypeDetails.push(newRoomType);
+				}
+			});
+			resObj.success = roomTypeDetails;
+			return resObj;
 		} catch (error) {
 			throw error;
 		} finally {
