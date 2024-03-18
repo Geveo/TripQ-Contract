@@ -24,6 +24,9 @@ export class HotelController {
 				case "GetHotelById":
 					return await this.#service.getHotelById();
 					break;
+				case "SearchHotelsWithRooms":
+					return await this.#service.getHotelsWithRoomSearch();
+					break;
 				default:
 					break;
 			}

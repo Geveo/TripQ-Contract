@@ -24,47 +24,58 @@ export class RoomService {
 
 		const data = this.#message.data;
 
-		try {
-			const roomType = {
-				HotelId: data.HotelId,
-				Code: data.Code,
-				Sqft: data.Sqft,
-				Description: data.Description,
-				RoomsCount: data.RoomsCount,
-				SingleBedCount: data.SingleBedCount,
-				DoubleBedCount: data.DoubleBedCount,
-				TripleBedCount: data.TripleBedCount,
-				Price: data.Price,
-			};
-			// Saving to the roomType table
-			const rmTId = await this.#dbContext.insertValue(Tables.ROOMTYPES, roomType);
-			// If RFacilityId is present, in each array object, get that and save to m2m tble
-			// Otherwise, create a facility record and add it to the m2m table.
-			if (data.Facilities && data.Facilities.length > 0 && rmTId.lastId) {
-				for (const facility of data.Facilities) {
-					let rFacilityId = 0;
-					if (facility.RFacilityId && facility.RFacilityId > 0) {
-						rFacilityId = facility.RFacilityId;
-					} else {
-						// Save Facility Entity
-						const rFacilityEntity = {
-							Name: facility.Name,
-							Description: facility.Description,
-							CreatedOn: this.#date,
-						};
-						if (await this.#dbContext.isTableExists(Tables.FACILITIES)) {
-							try {
-								const rFacilityIdRes = await this.#dbContext.insertValue(
-									Tables.FACILITIES,
-									rFacilityEntity
-								);
-							} catch (error) {
-								throw `Error occured in saving room Facility ${rFacilityEntity.Name} `;
-							}
-						} else {
-							throw `Room Facility table not found.`;
-						}
-					}
+     try {
+
+		let sleeps = 0;
+		if(data.SingleBedCount>0){
+		   sleeps += data.SingleBedCount*1
+		}
+		if(data.DoubleBedCount>0){
+		   sleeps += data.DoubleBedCount*2
+		}
+		if(data.TripleBedCount>0){
+		   sleeps += data.TripleBedCount*3
+		}
+		
+		const roomType = {
+			HotelId: data.HotelId,
+			Code: data.Code,
+			Sqft: data.Sqft,
+			Description: data.Description,
+			RoomsCount: data.RoomsCount,
+			SingleBedCount: data.SingleBedCount,
+			DoubleBedCount: data.DoubleBedCount,
+			TripleBedCount: data.TripleBedCount,
+			Price: data.Price,
+			TotalSleeps: sleeps
+		};
+		// Saving to the roomType table
+			const rmTId = (await this.#dbContext.insertValue(Tables.ROOMTYPES, roomType));
+		// If RFacilityId is present, in each array object, get that and save to m2m tble
+        // Otherwise, create a facility record and add it to the m2m table.
+        if (data.Facilities && data.Facilities.length > 0 && rmTId.lastId ) {
+            for (const facility of data.Facilities) {
+                let rFacilityId = 0;
+                if (facility.RFacilityId && facility.RFacilityId > 0) {
+                    rFacilityId = facility.RFacilityId;
+                }
+                else {
+                    // Save Facility Entity
+                    const rFacilityEntity = {
+                        Name: facility.Name,
+                        Description: facility.Description,
+						CreatedOn: this.#date
+                    }
+					 if (await this.#dbContext.isTableExists(Tables.FACILITIES)) {
+                        try {
+							const rFacilityIdRes = (await this.#dbContext.insertValue(Tables.FACILITIES, rFacilityEntity));
+						 } catch (error) {
+                            throw (`Error occured in saving room Facility ${rFacilityEntity.Name} `);
+                        }
+                    } else {
+                        throw (`Room Facility table not found.`);
+                    }
+                }
 
 					// Save in the m2m table
 					const roomFacilityEntity = {

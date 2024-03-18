@@ -72,6 +72,8 @@ export class DBInitializer {
 				SingleBedCount INTEGER,
 				DoubleBedCount INTEGER,
 				TripleBedCount INTEGER,
+				TotalSleeps INTEGER,
+				Facilities Text,
 				CreatedOn INTEGER,
 				LastUpdatedOn INTEGER,
 				PRIMARY KEY("Id" AUTOINCREMENT),
@@ -149,7 +151,6 @@ export class DBInitializer {
 				Email TEXT,
 				Country TEXT,
 				Telephone TEXT,
-				
 				HotelId INTEGER ,
 				CreatedOn INTEGER,
 				LastUpdatedOn INTEGER,
@@ -163,7 +164,6 @@ export class DBInitializer {
 				RoomTypeId INTEGER,
 				ReservationId INTEGER,
 				NoOfRooms INTEGER,
-
 				CreatedOn INTEGER,
 				LastUpdatedOn INTEGER,
 				PRIMARY KEY("Id" AUTOINCREMENT),
@@ -289,6 +289,10 @@ export class DBInitializer {
         // // Inserting hotels
         let hotels = `INSERT INTO HOTELS (Name, Description, StarRatings, ContactDetails, Location, Facilities, WalletAddress, CreatedOn, LastUpdatedOn)
 						VALUES
+						('Hotel 1', 'Description A', 4, 'Contact A', 'Location A', 'Facilities A', 'WalletAddress A', 1647004800, 1647004800),
+						('Hotel 2', 'Description B', 3, 'Contact B', 'Location B', 'Facilities B', 'WalletAddress B', 1647004800, 1647004800),
+						('Hotel 3', 'Description C', 5, 'Contact C', 'Location C', 'Facilities C', 'WalletAddress C', 1647004800, 1647004800),
+						('Hotel 4', 'Description D', 2, 'Contact D', 'Location D', 'Facilities D', 'WalletAddress D', 1647004800, 1647004800)
 						('Hotel A', 'Description A', 4, 'Contact A', 'Location A', 'Facilities A', 'WalletAddress A', 1647004800, 1647004800),
 						('Hotel B', 'Description B', 3, 'Contact B', 'Location B', 'Facilities B', 'WalletAddress B', 1647004800, 1647004800),
 						('Hotel C', 'Description C', 5, 'Contact C', 'Location C', 'Facilities C', 'WalletAddress C', 1647004800, 1647004800),
@@ -319,12 +323,18 @@ export class DBInitializer {
 							('WalletAddress D', 250.90, '2024-03-14', '2024-03-18', 4, 'Bob', 'Smith', 'bob.smith@example.com', 'Australia', '369258147', 2, 1647004800, 1647004800),
 							('WalletAddress E', 250.90, '2024-03-14', '2024-03-18', 4, 'Bob', 'Smith', 'bob.smith@example.com', 'Australia', '369258147', 5, 1647004800, 1647004800),
 							('WalletAddress F', 250.90, '2024-03-14', '2024-03-18', 4, 'Bob', 'Smith', 'bob.smith@example.com', 'Australia', '369258147', 5, 1647004800, 1647004800);
+							('WalletAddress C', 150.25, '2024-03-19', '2024-03-25', 4, 'Alice', 'Smith', 'alice.smith@example.com', 'UK', '741852963', 6, 1647004800, 1647004800),
+							('WalletAddress D', 250.90, '2024-03-14', '2024-03-18', 4, 'Bob', 'Smith', 'bob.smith@example.com', 'Australia', '369258147', 2, 1647004800, 1647004800);
 		`;
         await this.#runQuery(reservations);
 
 		// // Inserting RESERVATIONROOMTYPES 
 		let reservationRoomTypes = `INSERT INTO RESERVATIONROOMTYPES (RoomTypeId, ReservationId, NoOfRooms, CreatedOn, LastUpdatedOn)
 									VALUES
+									(2, 1, 8, 1647004800, 1647004800),
+									(6, 3, 11, 1647004800, 1647004800),
+									(1, 2, 2, 1647004800, 1647004800),
+									(4, 4, 1, 1647004800, 1647004800);
 									(1, 1, 2, 1647004800, 1647004800),
 									(2, 1, 5, 1647004800, 1647004800),
 									(3, 3, 2, 1647004800, 1647004800),
