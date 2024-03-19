@@ -29,6 +29,9 @@ export class RoomController {
 				case "EditRoomTypes":
 					return await this.#service.editRoomTypes();
 					break;
+				case "GetAvailableRoomCount":
+					return await this.#service.getAvailableRoomCount();
+					break;
 				default:
 					break;
 			}
