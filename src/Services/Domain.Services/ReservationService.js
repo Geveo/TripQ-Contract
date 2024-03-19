@@ -117,19 +117,19 @@ export class ReservationService {
 			// Saving to the reservation table
 			const rowId = await this.#dbContext.insertValue(Tables.RESERVATIONS, reservationEntity);
 			const roomTypes = this.#message.data.RoomTypes;
-			
-			roomTypes.forEach(async roomType => {
+			for(const roomType of roomTypes){ 
+
 				const roomTypeEntity = {
-					RoomTypeId: roomType.RoomTypeId,
+					RoomTypeId: roomType.roomData.Id,
 					ReservationId: rowId.lastId,
-					NoOfRooms: roomType.NoOfRooms,
+					NoOfRooms: roomType.count
 				}
 				try {
-					await this.#dbContext.insertValue(Tables.RESERVATIONROOMTYPES, roomTypeEntity);
+					const res = await this.#dbContext.insertValue(Tables.RESERVATIONROOMTYPES, roomTypeEntity);
 				} catch (error) {
 					throw `Error occured in room types saving: ${e}`;
 				}
-			});
+			}
 			
 			resObj.success = { rowId: rowId };
 			return resObj;
