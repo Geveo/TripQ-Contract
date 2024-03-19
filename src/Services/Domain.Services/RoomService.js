@@ -434,6 +434,7 @@ export class RoomService {
 						SingleBedCount: element.SingleBedCount,
 						DoubleBedCount: element.DoubleBedCount,
 						TripleBedCount: element.TripleBedCount,
+						TotalSleeps: element.TotalSleeps,
 						CreatedOn: element.CreatedOn,
 						LastUpdatedOn: element.LastUpdatedOn,
 					};
