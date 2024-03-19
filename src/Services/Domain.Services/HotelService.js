@@ -81,7 +81,11 @@ export class HotelService {
         const fromDate = filters.CheckInDate;
         const toDate = filters.CheckOutDate;
 		
-        let query = `SELECT * FROM Hotels WHERE Location LIKE '%${filters.City}%'`;
+        let query = `SELECT DISTINCT H.*, I.ImageURL FROM Hotels H
+					left join HOTELIMAGES I on I.hotelId = H.Id
+					WHERE Location LIKE '%${filters.City}%' GROUP BY H.Id`;
+
+		
         let hotelRows = await this.#dbContext.runSelectQuery(query);
 
 		console.log(hotelRows)
@@ -100,6 +104,7 @@ export class HotelService {
             response.success = null;
             return response;
         }
+		console.log("roomsList", roomsList)
 
 		//hotelIds having rooms
         hotelIdList = [...new Set(roomsList.map(rl => rl.HotelId))];
@@ -107,7 +112,6 @@ export class HotelService {
 		//Hotels having rooms 
         hotelRows = hotelRows.filter(hr => hotelIdList.includes(hr.Id));
 
-		// Array to store filtered hotels
 		const availableHotels = [];
 		
             // Iterate through each hotel
