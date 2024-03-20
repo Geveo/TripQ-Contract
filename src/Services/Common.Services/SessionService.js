@@ -1,4 +1,3 @@
-import { ActivityLogService } from './ActivityLog.Service';
 const settings = require('../../settings.json').settings;
 const { SharedService } = require('./SharedService');
 const { SqliteDatabase } = require('./dbHandler').default;
@@ -10,13 +9,11 @@ export class SessionService {
     #dbPath = settings.dbPath;
     #message = null;
     #dbContext = null;
-    #activityLogger = null;
     #date = SharedService.getCurrentTimestamp()
 
     constructor(message) {
         this.#message = message;
         this.#dbContext = new SqliteDatabase(this.#dbPath);
-        this.#activityLogger = new ActivityLogService(message);
     }
 
     async addSession() {
@@ -65,10 +62,8 @@ export class SessionService {
             const rowId = (await this.#dbContext.insertValue(Tables.SESSION, data)).lastId;
             resObj.success = { sessionId: uuidForSessionId }
             console.log('New Session Created.', rowId);
-            await this.#activityLogger.writeLog(LogTypes.INFO, LogMessages.SUCCESS.ADD_SESSION_SUCCESS);
             return resObj;
         } catch (error) {
-            await this.#activityLogger.writeLog(LogTypes.ERROR, LogMessages.ERROR.ADD_SESSION_ERROR, error.message);
             throw error;
         } finally {
             this.#dbContext.close();
@@ -126,12 +121,10 @@ export class SessionService {
                 }
             } else {
                 console.log('Session not found.');
-                await this.#activityLogger.writeLog(LogTypes.AUDIT, LogMessages.AUDIT.SESSION_NOT_FOUND, "Session not found.");
                 return false;
             }
         } catch (error) {
             console.log('Error in session authentication.', error);
-            await this.#activityLogger.writeLog(LogTypes.ERROR, LogMessages.ERROR.AUTHENTICATE_SESSION_ERROR, error.message);
             return false;
         } finally {
             this.#dbContext.close();
@@ -153,7 +146,6 @@ export class SessionService {
             console.log('Session invalidated.');
             return true;
         } catch (error) {
-            await this.#activityLogger.writeLog(LogTypes.ERROR, LogMessages.ERROR.INVALIDATE_SESSION_ERROR, error.message);
             throw error;
         } finally {
             this.#dbContext.close();
