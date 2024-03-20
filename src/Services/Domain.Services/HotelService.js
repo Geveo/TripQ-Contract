@@ -67,57 +67,49 @@ export class HotelService {
 		}
 	}
 
-
 	async getHotelsWithRoomSearch() {
 		try {
 			await this.#dbContext.open();
 			const response = {};
-        if (!this.#message.filters) {
-            throw ("Invalid request.");
-        }
-        const filters = this.#message.filters;
-		console.log("filters:", filters);
-        const guestCount = this.#message.filters.GuestCount;
-        const fromDate = filters.CheckInDate;
-        const toDate = filters.CheckOutDate;
-		
-        let query = `SELECT DISTINCT H.*, I.ImageURL FROM Hotels H
+			if (!this.#message.filters) {
+				throw "Invalid request.";
+			}
+			const filters = this.#message.filters;
+			const guestCount = this.#message.filters.GuestCount;
+			const fromDate = filters.CheckInDate;
+			const toDate = filters.CheckOutDate;
+
+			let query = `SELECT DISTINCT H.*, I.ImageURL FROM Hotels H
 					left join HOTELIMAGES I on I.hotelId = H.Id
 					WHERE Location LIKE '%${filters.City}%' GROUP BY H.Id`;
 
-		
-        let hotelRows = await this.#dbContext.runSelectQuery(query);
+			let hotelRows = await this.#dbContext.runSelectQuery(query);
 
-		console.log(hotelRows)
+			if (!(hotelRows && hotelRows.length > 0)) {
+				response.success = null;
+				return response;
+			}
 
-        if (!(hotelRows && hotelRows.length > 0)) {
-            response.success = null;
-            return response;
-        }
+			let hotelIdList = hotelRows.map(hr => hr.Id);
+			query = `SELECT * FROM ROOMTYPES WHERE HotelId IN (${hotelIdList})`;
 
-        let hotelIdList = hotelRows.map(hr => hr.Id);
-        console.log(hotelIdList)
-        query = `SELECT * FROM ROOMTYPES WHERE HotelId IN (${hotelIdList})`;
+			let roomsList = await this.#dbContext.runSelectQuery(query);
+			if (!roomsList || roomsList.length < 1) {
+				response.success = null;
+				return response;
+			}
 
-        let roomsList = await this.#dbContext.runSelectQuery(query);
-        if (!roomsList || roomsList.length < 1) {
-            response.success = null;
-            return response;
-        }
-		console.log("roomsList", roomsList)
+			//hotelIds having rooms
+			hotelIdList = [...new Set(roomsList.map(rl => rl.HotelId))];
+			//Hotels having rooms
+			hotelRows = hotelRows.filter(hr => hotelIdList.includes(hr.Id));
 
-		//hotelIds having rooms
-        hotelIdList = [...new Set(roomsList.map(rl => rl.HotelId))];
-		console.log("hotelIdList: ",hotelIdList)
-		//Hotels having rooms 
-        hotelRows = hotelRows.filter(hr => hotelIdList.includes(hr.Id));
+			const availableHotels = [];
 
-		const availableHotels = [];
-		
-            // Iterate through each hotel
-			for(const hotel of hotelRows ){
+			// Iterate through each hotel
+			for (const hotel of hotelRows) {
 				// Query to retrieve available rooms for the specified dates
-						const availableRoomsQuery = `SELECT rt.Id AS RoomTypeId,
+				const availableRoomsQuery = `SELECT rt.Id AS RoomTypeId,
 							rt.Code AS RommType,
 							CASE
 								WHEN SUM(rrt.NoOfRooms) IS NULL THEN 0
@@ -136,38 +128,31 @@ export class HotelService {
 							((r.Id IS NULL AND rrt.Id IS NULL) OR (r.FromDate > ? OR r.ToDate < ?))
 						group by rt.Id`;
 
-						console.log("hotel.Id :",hotel.Id)
-					
-					const availableRooms = await this.#dbContext.runSelectQuery(availableRoomsQuery,
-						 [hotel.Id, toDate, fromDate]);
+				const availableRooms = await this.#dbContext.runSelectQuery(
+					availableRoomsQuery,
+					[hotel.Id, toDate, fromDate]
+				);
 
-						 console.log("availableRooms :",availableRooms)
-						 /*rt.Id AS RoomTypeId,
-						rt.RoomsCount - COALESCE(SUM(rrt.NoOfRooms), 0) AS AvailableRoomCount,
-						TotalSleeps AS TotalSleepCapacity
-						AND
-						(r.Id IS NULL OR (r.FromDate > '?' OR r.ToDate > '?'))
+				// Calculate total available sleep capacity across all available rooms
+				const totalAvailableCapacity = availableRooms.reduce(
+					(totalCapacity, room) => {
+						return (
+							totalCapacity +
+							room.TotalSleepCapacity * room.AvailableRoomCount
+						);
+					},
+					0
+				);
 
-						AND ((r.Id IS NULL AND rrt.Id IS NULL) OR ((r.Id IS NOT NULL AND rrt.Id IS NOT NULL) AND r.HotelId = rt.HotelId AND r.Id = rrt.ReservationId))  
-						*/
-
-                     // Calculate total available sleep capacity across all available rooms
-					 const totalAvailableCapacity = availableRooms.reduce((totalCapacity, room) => {
-                        return totalCapacity + room.TotalSleepCapacity*room.AvailableRoomCount;
-                    }, 0);
-					console.log("totalAvailableCapacity :",totalAvailableCapacity)
-
-                    // Check if total available capacity is sufficient for the guest count
-                    if (totalAvailableCapacity >= guestCount) {
-                        availableHotels.push(hotel);
-                    }
-
-                };
-			console.log("availableHotels :",availableHotels)
+				// Check if total available capacity is sufficient for the guest count
+				if (totalAvailableCapacity >= guestCount) {
+					availableHotels.push(hotel);
+				}
+			}
 			response.success = availableHotels;
 			return response;
-		}catch(error) {
-			console.log("Error in getting hotels with available rooms")
+		} catch (error) {
+			console.log("Error in getting hotels with available rooms");
 		} finally {
 			this.#dbContext.close();
 		}
@@ -209,7 +194,6 @@ export class HotelService {
 
 		try {
 			await this.#dbContext.open();
-			console.log(this.#message);
 
 			const hotels = await this.#dbContext.getValues(Tables.HOTELS, {
 				WalletAddress: this.#message.filters.WalletAddress,
@@ -250,7 +234,6 @@ export class HotelService {
 
 		try {
 			await this.#dbContext.open();
-			console.log(this.#message);
 
 			const hotelImages = await this.#dbContext.getValues(Tables.HOTELIMAGES, {
 				HotelId: this.#message.filters.Id,
@@ -291,19 +274,16 @@ export class HotelService {
 			hotelDetails.facilities = hotel.Facilities;
 			hotelDetails.walletAddress = hotel.WalletAddress;
 			hotelDetails.description = hotel.Description;
-			
+
 			const hotelImages = await this.#dbContext.getValues(Tables.HOTELIMAGES, {
 				HotelId: this.#message.filters.Id,
 			});
 			debugCode++;
 
-			console.log("Hotel details", hotel);
-			console.log(hotelImages);
-			
 			resObj.success = {
-                hotelDetails: hotel,
-                hotelImages: hotelImages,
-            };
+				hotelDetails: hotel,
+				hotelImages: hotelImages,
+			};
 
 			console.log(resObj);
 			debugCode++;

@@ -1,7 +1,7 @@
 {
 	"settings": {
 		"postExecutionScriptName": "./post_exec.sh",
-		"dbPath": "voyageLanka.db",
+		"dbPath": "tripq.db",
 		"dbScriptsFolderPath": "./dbScripts",
 		"newContractZipFileName": "./newContractData.zip"
 	},

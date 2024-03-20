@@ -367,16 +367,7 @@ class SqliteDatabase {
 				if (err) {
 					console.error('Error finalizing statement:', err.message);
 				}
-			});
-
-			// Commit the transaction
-			// this.db.get("COMMIT;", function(err) {
-			// 	if (err) {
-			// 		console.error('Error committing transaction:', err.message);
-			// 	}
-			// });
-
-		
+			});		
 		});
 	}
 }

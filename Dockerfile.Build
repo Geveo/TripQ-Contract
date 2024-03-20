@@ -5,18 +5,18 @@ FROM ubuntu:latest
 RUN apt-get update && apt-get install -y nodejs npm
 
 # Copy your project files into the container
-WORKDIR /voyagelanka
+WORKDIR /tripq
 
 # Clear the contents of the working directory
 RUN rm -rf ./*
 
 # Copy package.json and package-lock.json
-COPY package*.json /voyagelanka
+COPY package*.json /tripq
 
 # Install dependencies
 RUN npm install
 
-COPY src /voyagelanka/src/
+COPY src /tripq/src/
 
 # Build your project
 RUN npm run buildLinux  

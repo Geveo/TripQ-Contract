@@ -1,10 +1,8 @@
 import { RoomService } from "../Services/Domain.Services/RoomService";
-import { ActivityLogService } from "../Services/Common.Services/ActivityLog.Service";
 
 export class RoomController {
 	#message = null;
 	#service = null;
-	#activityLogger = null;
 
 	constructor(message) {
 		this.#message = message;

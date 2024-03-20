@@ -1,6 +1,5 @@
 import { FileService } from "../Common.Services/FileService";
 import { SharedService } from "../Common.Services/SharedService";
-import { ActivityLogService } from "../Common.Services/ActivityLog.Service";
 import { Tables } from "../../Constants/Tables";
 import { LogTypes } from "../../Constants/LogTypes";
 import { LogMessages } from "../../Constants/LogMessages";
@@ -12,12 +11,10 @@ export class ContractUpdateService {
     #dbPath = settings.dbPath;
     #message = null;
     #dbContext = null;
-    #activityLogger = null;
 
     constructor(message) {
         this.#message = message;
         this.#dbContext = new SqliteDatabase(this.#dbPath);
-        this.#activityLogger = new ActivityLogService(message);
     }
 
     async UpdateContract() {
@@ -28,12 +25,7 @@ export class ContractUpdateService {
             this.#dbContext.open();
             let row = await this.#dbContext.getLastRecord(Tables.CONTRACTVERSION);
 
-            // if(row == null || row === undefined) {
-            //     row = {Version: 1.0}
-            // }
-
             if (false && row.Version >= zipData.version) {  // Temporarily omit this validation for test purposes
-                await this.#activityLogger.writeLog(LogTypes.ERROR, LogMessages.ERROR.UPDATE_CONTRACT_ERROR, "Contract version is less than the previous.");
                 throw "Contract version is less than the previous.";
             } else {
                 FileService.writeFile(settings.newContractZipFileName, Buffer.from(zipData.content.buffer));
@@ -71,13 +63,11 @@ rm "$zip_file" >>/dev/null
                 const rowId = (await this.#dbContext.insertValue(Tables.CONTRACTVERSION, data)).lastId;
                 resObj.success = { rowId: rowId };
 
-                await this.#activityLogger.writeLog(LogTypes.INFO, LogMessages.SUCCESS.UPDATE_CONTRACT_SUCCESS);
                 return resObj;
             }
 
 
         } catch (error) {
-            await this.#activityLogger.writeLog(LogTypes.ERROR, LogMessages.ERROR.UPDATE_CONTRACT_ERROR, error.message);
             throw error;
         } finally {
             this.#dbContext.close();

@@ -158,8 +158,6 @@ export class DBInitializer {
 				FOREIGN KEY("ReservationId") REFERENCES "${Tables.RESERVATIONS}"("Id") ON DELETE CASCADE ON UPDATE CASCADE
 			)`);
 
-			await this.#insertData();
-
 			this.#db.close();
 		}
 
@@ -199,7 +197,6 @@ export class DBInitializer {
 
 				for (const sqlFile of sqlFiles) {
 					const scriptPath = path.join(sprintFolderPath, sqlFile);
-					//const scriptName = sqlFile.replace(/^\d+_(.+)\.sql$/, '$1');
 
 					// Check if the script has been executed before
 					const query =
@@ -225,8 +222,6 @@ export class DBInitializer {
 
 						console.log(`Executed script: ${scriptPath}`);
 					} else {
-						// If the script found
-						// console.log(`Skipped already executed script: ${scriptPath}`);
 					}
 				}
 			}
@@ -234,68 +229,8 @@ export class DBInitializer {
 			this.#db.close();
 		}
 	}
-	static async #insertData() {
-/*
-        let rFacilities = `INSERT INTO "Facilities" ("Id", "Name", "Description") VALUES (1, "Private Bathroom", "This room has this facility."),
-        (2, "Private Pool", "This room has this facility."),
-        (3, "Washing Machine", "This room has this facility."),
-        (4, "TV", "This room has this facility."),
-        (5, "Air Conditioning", "This room has this facility."),
-        (6, "Terrace", "This room has this facility."),
-        (7, "Refrigerator", "This room has this facility."),
-        (8, "Balcony", "This room has this facility."),
-        (9, "Kitchen/Kitchenette", "This room has this facility."),
-        (10, "Coffee/tea maker", "This room has this facility."),
-        (11, "Clothes rack", "This room has this facility."),
-        (12, "Entire unit located on ground floor", "This room has this facility."),
-        (13, "Elevators availble", "This room has this facility."),
-        (14, "Toilet with grab rails", "This room has this facility."),
-        (15, "Adapted Bath", "This room has this facility."),
-        (16, "Walk-in Shower", "This room has this facility."),
-        (17, "Raised toilet", "This room has this facility."),
-        (18, "Lowered sink", "This room has this facility."),
-        (19, "Shower Chair", "This room has this facility.")`;
-
-       const re =  await this.#runQuery(rFacilities);
-	   console.log("insert query res: ", re)
-*/
-
-
-        // // // Inserting Reservations
-        // let reservations = `INSERT INTO RESERVATIONS (WalletAddress, Price, FromDate, ToDate, NoOfNights, FirstName, LastName, Email, Country, Telephone, HotelId, CreatedOn, LastUpdatedOn)
-		// 					VALUES
-		// 					('WalletAddress A', 200.50, '2024-03-11', '2024-03-15', 4, 'John', 'Doe', 'john.doe@example.com', 'USA', '123456789', 1, 1647004800, 1647004800),
-		// 					('WalletAddress B', 300.75, '2024-03-12', '2024-03-16', 4, 'Jane', 'Doe', 'jane.doe@example.com', 'Canada', '987654321', 2, 1647004800, 1647004800),
-		// 					('WalletAddress C', 150.25, '2024-03-13', '2024-03-17', 4, 'Alice', 'Smith', 'alice.smith@example.com', 'UK', '741852963', 1, 1647004800, 1647004800),
-		// 					('WalletAddress D', 250.90, '2024-03-14', '2024-03-18', 4, 'Bob', 'Smith', 'bob.smith@example.com', 'Australia', '369258147', 2, 1647004800, 1647004800),
-		// 					('WalletAddress E', 250.90, '2024-03-14', '2024-03-18', 4, 'Bob', 'Smith', 'bob.smith@example.com', 'Australia', '369258147', 5, 1647004800, 1647004800),
-		// 					('WalletAddress F', 250.90, '2024-03-14', '2024-03-18', 4, 'Bob', 'Smith', 'bob.smith@example.com', 'Australia', '369258147', 5, 1647004800, 1647004800);
-		// 					('WalletAddress C', 150.25, '2024-03-19', '2024-03-25', 4, 'Alice', 'Smith', 'alice.smith@example.com', 'UK', '741852963', 6, 1647004800, 1647004800),
-		// 					('WalletAddress D', 250.90, '2024-03-14', '2024-03-18', 4, 'Bob', 'Smith', 'bob.smith@example.com', 'Australia', '369258147', 2, 1647004800, 1647004800);
-		// `;
-        // await this.#runQuery(reservations);
-
-		// // // Inserting RESERVATIONROOMTYPES 
-		// let reservationRoomTypes = `INSERT INTO RESERVATIONROOMTYPES (RoomTypeId, ReservationId, NoOfRooms, CreatedOn, LastUpdatedOn)
-		// 							VALUES
-		// 							(2, 1, 8, 1647004800, 1647004800),
-		// 							(6, 3, 11, 1647004800, 1647004800),
-		// 							(1, 2, 2, 1647004800, 1647004800),
-		// 							(4, 4, 1, 1647004800, 1647004800);
-		// 							(1, 1, 2, 1647004800, 1647004800),
-		// 							(2, 1, 5, 1647004800, 1647004800),
-		// 							(3, 3, 2, 1647004800, 1647004800),
-		// 							(4, 4, 1, 1647004800, 1647004800),
-		// 							(5, 5, 3, 1647004800, 1647004800),
-		// 							(5, 6, 2, 1647004800, 1647004800);
-		// `;
-		// await this.#runQuery(reservationRoomTypes);
-
-
-    }
 
 	static #runQuery(query, params = null) {
-		console.log("inside run query")
 		return new Promise((resolve, reject) => {
 			this.#db.run(query, params ? params : [], function (err) {
 				if (err) {
