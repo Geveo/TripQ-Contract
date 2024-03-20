@@ -52,10 +52,7 @@ export class ReservationService {
 
 			let reservations = await this.#dbContext.runSelectQuery(reservationQuery);
 
-			console.log(reservations)
-
 			if( reservations.length > 0) {
-				
 				// Fitering by date (ToDate exclusive)
 				if(filters.date) {
 					reservations = reservations.filter(rs => rs.FromDate <= filters.date && rs.ToDate > filters.date )
@@ -69,8 +66,6 @@ export class ReservationService {
 										WHERE rr.ReservationId IN (${reservationIds.join(', ')})`;
 
 				const roomDetails = await this.#dbContext.runSelectQuery(roomDetailsQuery);
-
-				console.log(roomDetails)
 
 				const response = [];
 				for(const rs of reservations) {
@@ -98,8 +93,8 @@ export class ReservationService {
 
 		try {
 			this.#dbContext.open();
-			console.log(this.#message)
 			const data = this.#message.data;
+			
 			const reservationEntity = {
 				WalletAddress: data.WalletAddress,
 				Price: data.Price,
