@@ -156,6 +156,36 @@ export class HotelService {
 		} finally {
 			this.#dbContext.close();
 		}
+    }
+
+	async getRecentHotels(){
+		let resObj = {};
+
+		try {
+			await this.#dbContext.open();
+
+			let query = `SELECT DISTINCT H.*, I.ImageURL FROM Hotels H
+						left join HOTELIMAGES I on I.hotelId = H.Id
+						GROUP BY H.Id
+						LIMIT 5`;
+
+			let hotelRows = await this.#dbContext.runSelectQuery(query);
+
+			console.log(hotelRows)
+
+			if (!(hotelRows && hotelRows.length > 0)) {
+				response.success = null;
+				return response;
+			}
+			resObj.success = hotelRows;
+			return resObj;
+
+		} catch (error) {
+			console.log("Error in listing hotel images");
+		} finally {
+			this.#dbContext.close();
+		}
+
 	}
 
 	async getHotelsListByWalletAddress() {

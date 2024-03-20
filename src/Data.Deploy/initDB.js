@@ -125,19 +125,6 @@ export class DBInitializer {
 				FOREIGN KEY("RoomTypeId") REFERENCES "${Tables.ROOMTYPES}"("Id")
                 )`);
 
-
-			// Create table Pricing
-			await this.#runQuery(`CREATE TABLE IF NOT EXISTS ${Tables.PRICES} (
-				Id INTEGER,
-				RoomTypeId INTEGER,
-				TypeOfStay Text ,
-				Price REAL,
-				CreatedOn INTEGER,
-				LastUpdatedOn INTEGER,
-				PRIMARY KEY("Id" AUTOINCREMENT),
-				FOREIGN KEY("RoomTypeId") REFERENCES "${Tables.ROOMTYPES}"("Id") ON DELETE CASCADE ON UPDATE CASCADE
-			)`);
-
 			// Create table Reservations
 			await this.#runQuery(`CREATE TABLE IF NOT EXISTS ${Tables.RESERVATIONS} (
 				Id INTEGER,
