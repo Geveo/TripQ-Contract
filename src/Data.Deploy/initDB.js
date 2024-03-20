@@ -125,19 +125,6 @@ export class DBInitializer {
 				FOREIGN KEY("RoomTypeId") REFERENCES "${Tables.ROOMTYPES}"("Id")
                 )`);
 
-
-			// Create table Pricing
-			await this.#runQuery(`CREATE TABLE IF NOT EXISTS ${Tables.PRICES} (
-				Id INTEGER,
-				RoomTypeId INTEGER,
-				TypeOfStay Text ,
-				Price REAL,
-				CreatedOn INTEGER,
-				LastUpdatedOn INTEGER,
-				PRIMARY KEY("Id" AUTOINCREMENT),
-				FOREIGN KEY("RoomTypeId") REFERENCES "${Tables.ROOMTYPES}"("Id") ON DELETE CASCADE ON UPDATE CASCADE
-			)`);
-
 			// Create table Reservations
 			await this.#runQuery(`CREATE TABLE IF NOT EXISTS ${Tables.RESERVATIONS} (
 				Id INTEGER,
@@ -248,20 +235,7 @@ export class DBInitializer {
 		}
 	}
 	static async #insertData() {
-
 /*
-        let hFacilities = `INSERT INTO "HFacilities" ("Id","Name","Description","Status") VALUES (1,'Free WiFi','This is test description of this facility.','Available'),
-        (6,'Family Room','This is test description of this facility.','Available'),
-        (3,'Fitness Center','This is test description of this facility.','Available'),
-        (2,'Swimming Pool','This is test description of this facility.','Available'),
-        (7,'Pet friendly','This is test description of this facility.','Available'),
-        (4,'Room Service','This is test description of this facility.','Available'),
-        (8,'Disabled access','This is test description of this facility.','Available'),
-        (10,'Parking','This is test description of this facility.','Available'),
-        (9,'Restaurant','This is test description of this facility.','Available'),
-        (5,'Spa & Wellness','This is test description of this facility.','Available')`;
-        await this.#runQuery(hFacilities);
-*/
         let rFacilities = `INSERT INTO "Facilities" ("Id", "Name", "Description") VALUES (1, "Private Bathroom", "This room has this facility."),
         (2, "Private Pool", "This room has this facility."),
         (3, "Washing Machine", "This room has this facility."),
@@ -284,35 +258,8 @@ export class DBInitializer {
 
        const re =  await this.#runQuery(rFacilities);
 	   console.log("insert query res: ", re)
+*/
 
-
-        // // Inserting hotels
-        // let hotels = `INSERT INTO HOTELS (Name, Description, StarRatings, ContactDetails, Location, Facilities, WalletAddress, CreatedOn, LastUpdatedOn)
-		// 				VALUES
-		// 				('Hotel 1', 'Description A', 4, 'Contact A', 'Location A', 'Facilities A', 'WalletAddress A', 1647004800, 1647004800),
-		// 				('Hotel 2', 'Description B', 3, 'Contact B', 'Location B', 'Facilities B', 'WalletAddress B', 1647004800, 1647004800),
-		// 				('Hotel 3', 'Description C', 5, 'Contact C', 'Location C', 'Facilities C', 'WalletAddress C', 1647004800, 1647004800),
-		// 				('Hotel 4', 'Description D', 2, 'Contact D', 'Location D', 'Facilities D', 'WalletAddress D', 1647004800, 1647004800),
-		// 				('Hotel A', 'Description A', 4, 'Contact A', 'Location A', 'Facilities A', 'WalletAddress A', 1647004800, 1647004800),
-		// 				('Hotel B', 'Description B', 3, 'Contact B', 'Location B', 'Facilities B', 'WalletAddress B', 1647004800, 1647004800),
-		// 				('Hotel C', 'Description C', 5, 'Contact C', 'Location C', 'Facilities C', 'WalletAddress C', 1647004800, 1647004800),
-		// 				('Hotel D', 'Description D', 2, 'Contact D', 'Location D', 'Facilities D', 'WalletAddress D', 1647004800, 1647004800),
-		// 				('Hotel E', 'Description E', 2, '{"FullName":"Madushi Sarathchandra","Email":"mm@gmail.com","PhoneNumber":"0707878789"}', '{"AddressLine01":"Angankanda, Aluthwala","AddressLine02":"","City":"Ambalangoda","DistanceFromCity":"5"}', '[{"Id":9,"Name":"Restaurant","Description":"Description"},{"Id":6,"Name":"Family Room","Description":"Description"}]', 'rLuYy66zndMYVsxmqwAFrxMQjXHEmBwJDA', 1647004800, 1647004800)
-		// 				`;
-
-        // await this.#runQuery(hotels);
-
-        // // // Inserting RoomTypes
-        // let roomTypes = `INSERT INTO ROOMTYPES (HotelId, Code, Sqft, Description, RoomsCount, Price, SingleBedCount, DoubleBedCount, TripleBedCount, CreatedOn, LastUpdatedOn)
-		// 					VALUES
-		// 					(1, 'Code A', 300, 'Description A', 10, '100', 2, 3, 1, 1647004800, 1647004800),
-		// 					(1, 'Code B', 350, 'Description B', 12, '120', 3, 4, 2, 1647004800, 1647004800),
-		// 					(2, 'Code C', 400, 'Description C', 15, '150', 3, 5, 1, 1647004800, 1647004800),
-		// 					(2, 'Code D', 450, 'Description D', 18, '180', 4, 6, 2, 1647004800, 1647004800),
-		// 					(5, 'Code E', 450, 'Description E', 18, '180', 4, 6, 2, 1647004800, 1647004800),
-		// 					(5, 'Code F', 450, 'Description E', 28, '180', 4, 6, 2, 1647004800, 1647004800)
-		// 					`;
-        // await this.#runQuery(roomTypes);
 
         // // // Inserting Reservations
         // let reservations = `INSERT INTO RESERVATIONS (WalletAddress, Price, FromDate, ToDate, NoOfNights, FirstName, LastName, Email, Country, Telephone, HotelId, CreatedOn, LastUpdatedOn)
