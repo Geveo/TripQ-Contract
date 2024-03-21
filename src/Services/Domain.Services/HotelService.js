@@ -25,7 +25,7 @@ export class HotelService {
 			const hotelEntity = {
 				Name: data.Name,
 				Description: data.Description,
-				StarRatings: data.StarRate,
+				StarRatings: (!data.StarRate ? 0 : data.StarRate),
 				Location: data.Location,
 				ContactDetails: data.ContactDetails,
 				Facilities: data.Facilities,
