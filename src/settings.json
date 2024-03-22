@@ -1,0 +1,24 @@
+{
+	"settings": {
+		"postExecutionScriptName": "./post_exec.sh",
+		"dbPath": "tripq.db",
+		"dbScriptsFolderPath": "./dbScripts",
+		"newContractZipFileName": "./newContractData.zip"
+	},
+	"sendgridMail": {
+		"apiKey": "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",
+		"templateId": "d-6216b143e4af42309bf48d803b17992f"
+	},
+	"contractUpdatingPublicKey": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7eczZF7Hpj28WWAovkM/\nJN1G/7T77mUO+x2HShLu+yl66L1GrqdPfKE2dr5ElWKo1yAUXxE0BneZkf2bobAy\nMjNnO9EMHvnnqyO4d+mj+iU1LnjebMJcL2bV93wW2QVljip10p4tiAVRF/ay8ruA\nwPfJtUkPbQfMG9iXt6t4zIM0VdOBs+A2c2ZhZ1vHHjTe3vNth0zbH96NLdtkQklF\nH8q7/NykrtbqHEeJqwJ+1WP75+bnA75heTfESdWyF54i8Hjspt8C8RvSJLVgMy4i\nN/yPTexrj4UyoLhoKpYcVc0GiFVl+8aZobfhWJcXpQgQPzo4b5qYj1SH1tX9oxTz\nKQIDAQAB\n-----END PUBLIC KEY-----",
+	"azureAd": {
+		"Instance": "https://login.microsoftonline.com/",
+		"Domain": "geveo.com",
+		"TenantId": "2dc5556c-805e-4168-9b18-91a81ce717f9",
+		"ClientId": "478222e6-f4a0-4c2f-87b7-cff089e99578",
+		"ClientSecret": "P11UsYwbd0:0/?Iwx-1/Z2Aku1sm=F4c",
+		"AllUsersGroup": "GeveoHR.TestGeveoAll",
+		"TeamLeadsGroup": "GeveoHR.TestGeveoLeads",
+		"HRAdminsGroup": "GeveoHR.TestGeveoAdmins",
+		"GraphUrl": "https://graph.microsoft.com/"
+	}
+}
