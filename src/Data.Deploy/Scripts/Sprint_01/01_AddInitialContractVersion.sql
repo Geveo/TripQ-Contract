@@ -65,3 +65,18 @@ VALUES
 (3, 'https://firebasestorage.googleapis.com/v0/b/voyagelankav1.appspot.com/o/hotel_images%2FShangri%20La%2Fdownload.jpeg?alt=media&token=9beb5468-bf6c-4ba0-9b4a-0cef7d26d738', 1647004800, 1647004800),
 (3, 'https://firebasestorage.googleapis.com/v0/b/voyagelankav1.appspot.com/o/hotel_images%2FShangri%20La%2Fmaxresdefault.jpg?alt=media&token=811c26ae-9f99-459d-a18e-967c49e4557a', 1647004800, 1647004800);
 
+
+
+INSERT INTO RESERVATIONS (
+    WalletAddress, Price, FromDate, ToDate, NoOfNights, FirstName, LastName, Email, Country, Telephone, HotelId, CreatedOn, LastUpdatedOn
+) VALUES (
+    'Sanjeev@gfhgroup.com', 256, '2024-04-23', '2024-04-25', 2, 'John', 'Doe', 'john.doe@example.com', 'Sri Lanka', '123456789', 
+    1, 1694683784879, 1694683684879
+);
+
+
+INSERT INTO RESERVATIONROOMTYPES (
+    RoomTypeId, ReservationId, NoOfRooms, CreatedOn, LastUpdatedOn
+) VALUES 
+    (1, 1, 1, 1684683684879, 1694683682879),
+    (2, 1, 4, 1694683684872, 1694683684871);
