@@ -109,41 +109,35 @@ export class HotelService {
 			// Iterate through each hotel
 			for (const hotel of hotelRows) {
 				// Query to retrieve available rooms for the specified dates
-				const availableRoomsQuery = `SELECT rt.Id AS RoomTypeId,
-							rt.Code AS RommType,
-							CASE
-								WHEN SUM(rrt.NoOfRooms) IS NULL THEN 0
-								ELSE SUM(rrt.NoOfRooms)
-							END TotalBookedRooms,
-							CASE
-								WHEN SUM(rrt.NoOfRooms) IS NULL THEN rt.RoomsCount - 0
-								ELSE rt.RoomsCount - SUM(rrt.NoOfRooms)
-							END AvailableRoomCount,
-							rt.RoomsCount AS TotalRoom,
-							rt.TotalSleeps AS TotalSleepCapacity
-						FROM RoomTypes rt
-							left join ReservationRoomTypes rrt on rt.Id = rrt.RoomtypeId 
-							left join Reservations r on r.Id = rrt.ReservationId 
-						where rt.HotelId = ? AND
-							((r.Id IS NULL AND rrt.Id IS NULL) OR (r.FromDate > ? OR r.ToDate < ?))
-						group by rt.Id`;
+				const availableRoomsQuery = `SELECT 
+						RT.Id AS RoomTypeId,
+						RT.Code AS RoomTypeCode,
+						Rt.TotalSleeps AS TotalSleepCapacity,
+						RT.RoomsCount - COALESCE(SUM(CASE WHEN R.FromDate <= ? AND R.ToDate >= ? THEN RTR.NoOfRooms ELSE 0 END), 0) AS AvailableRooms
+					FROM RoomTypes AS RT
+					LEFT JOIN ReservationRoomTypes AS RTR ON RT.Id = RTR.RoomTypeId
+					LEFT JOIN Reservations AS R ON RTR.ReservationId = R.Id
+					WHERE 
+						RT.HotelId = ? 
+					GROUP BY 
+						RT.Id;`;
 
 				const availableRooms = await this.#dbContext.runSelectQuery(
 					availableRoomsQuery,
-					[hotel.Id, toDate, fromDate]
+					[ toDate, fromDate,hotel.Id]
 				);
+				console.log("availableRooms", availableRooms)
 
 				// Calculate total available sleep capacity across all available rooms
 				const totalAvailableCapacity = availableRooms.reduce(
 					(totalCapacity, room) => {
 						return (
 							totalCapacity +
-							room.TotalSleepCapacity * room.AvailableRoomCount
+							room.TotalSleepCapacity * room.AvailableRooms
 						);
 					},
 					0
 				);
-
 				// Check if total available capacity is sufficient for the guest count
 				if (totalAvailableCapacity >= guestCount) {
 					availableHotels.push(hotel);
