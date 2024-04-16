@@ -79,12 +79,10 @@ export class HotelService {
 			const fromDate = filters.CheckInDate;
 			const toDate = filters.CheckOutDate;
 
-			let query = `SELECT DISTINCT H.*, I.ImageURL FROM Hotels H
-					left join HOTELIMAGES I on I.hotelId = H.Id
-					WHERE Location LIKE '%${filters.City}%' GROUP BY H.Id`;
+			let query = `SELECT DISTINCT * FROM Hotels WHERE Location LIKE '%${filters.City}%' GROUP BY Id`;
 
 			let hotelRows = await this.#dbContext.runSelectQuery(query);
-
+			
 			if (!(hotelRows && hotelRows.length > 0)) {
 				response.success = null;
 				return response;
@@ -94,6 +92,7 @@ export class HotelService {
 			query = `SELECT * FROM ROOMTYPES WHERE HotelId IN (${hotelIdList})`;
 
 			let roomsList = await this.#dbContext.runSelectQuery(query);
+
 			if (!roomsList || roomsList.length < 1) {
 				response.success = null;
 				return response;
@@ -140,6 +139,10 @@ export class HotelService {
 				);
 				// Check if total available capacity is sufficient for the guest count
 				if (totalAvailableCapacity >= guestCount) {
+					const hotelImages = await this.#dbContext.getValues(Tables.HOTELIMAGES, {
+						HotelId: hotel.Id,
+					});
+					hotel.ImageURL = hotelImages;
 					availableHotels.push(hotel);
 				}
 			}

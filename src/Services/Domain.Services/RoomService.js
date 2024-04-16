@@ -329,7 +329,7 @@ export class RoomService {
 				availableRooms = roomTypesAll;
 			}
 
-			resObj.success = availableRooms;
+			resObj.success = roomTypesAll;
 			return resObj;
 		} catch (error) {
 			throw error;
