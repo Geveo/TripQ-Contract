@@ -123,15 +123,16 @@ export class HotelService {
 
 				const availableRooms = await this.#dbContext.runSelectQuery(
 					availableRoomsQuery,
-					[toDate, fromDate, hotel.Id]
+					[ toDate, fromDate,hotel.Id]
 				);
-				console.log("availableRooms", availableRooms);
+				console.log("availableRooms", availableRooms)
 
 				// Calculate total available sleep capacity across all available rooms
 				const totalAvailableCapacity = availableRooms.reduce(
 					(totalCapacity, room) => {
 						return (
-							totalCapacity + room.TotalSleepCapacity * room.AvailableRooms
+							totalCapacity +
+							room.TotalSleepCapacity * room.AvailableRooms
 						);
 					},
 					0
@@ -157,7 +158,7 @@ export class HotelService {
 		}
 	}
 
-	async getRecentHotels() {
+	async getRecentHotels(){
 		let resObj = {};
 
 		try {
@@ -170,7 +171,7 @@ export class HotelService {
 
 			let hotelRows = await this.#dbContext.runSelectQuery(query);
 
-			console.log(hotelRows);
+			console.log(hotelRows)
 
 			if (!(hotelRows && hotelRows.length > 0)) {
 				response.success = null;
@@ -178,11 +179,13 @@ export class HotelService {
 			}
 			resObj.success = hotelRows;
 			return resObj;
+
 		} catch (error) {
 			console.log("Error in listing hotel images");
 		} finally {
 			this.#dbContext.close();
 		}
+
 	}
 
 	async getHotelsListByWalletAddress() {
