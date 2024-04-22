@@ -82,7 +82,7 @@ export class HotelService {
 			let query = `SELECT DISTINCT * FROM Hotels WHERE Location LIKE '%${filters.City}%' GROUP BY Id`;
 
 			let hotelRows = await this.#dbContext.runSelectQuery(query);
-			
+
 			if (!(hotelRows && hotelRows.length > 0)) {
 				response.success = null;
 				return response;
@@ -140,8 +140,8 @@ export class HotelService {
 				// Check if total available capacity is sufficient for the guest count
 				if (totalAvailableCapacity >= guestCount) {
 					const hotelImages = await this.#dbContext.getValues(Tables.HOTELIMAGES, {
-						HotelId: hotel.Id,
-					});
+							HotelId: hotel.Id,
+						});
 					hotel.ImageURL = hotelImages;
 					availableHotels.push(hotel);
 				}
@@ -153,11 +153,11 @@ export class HotelService {
 		} finally {
 			this.#dbContext.close();
 		}
-    }
+	}
 
 	async getRecentHotels(){
 		let resObj = {};
-
+	
 		try {
 			await this.#dbContext.open();
 
@@ -288,6 +288,165 @@ export class HotelService {
 			return resObj;
 		} catch (error) {
 			console.log("Error in listing hotel images");
+		} finally {
+			this.#dbContext.close();
+		}
+	}
+
+	async getHotelsListByDestination() {
+		try {
+			await this.#dbContext.open();
+			let resObj = {};
+
+			if (!this.#message.filters) {
+				throw "Invalid request.";
+			}
+			const destination = this.#message.filters.City;
+
+			let query = `SELECT DISTINCT * FROM Hotels WHERE Location LIKE '%${destination}%' GROUP BY Id`;
+
+			let hotelRows = await this.#dbContext.runSelectQuery(query);
+
+			resObj.success = hotelRows;
+			return resObj;
+		} catch (error) {
+			console.log("Error in listing hotels by destination");
+		} finally {
+			this.#dbContext.close();
+		}
+	}
+
+	async getAvailableHotelsListByAISearchedList() {
+		try {
+			await this.#dbContext.open();
+			let resObj = {};
+
+			if (!this.#message.filters) {
+				throw "Invalid request.";
+			}
+			const aiSearchedList = this.#message.filters.AISearchedList;
+
+			let query = "SELECT DISTINCT * FROM Hotels WHERE ";
+
+			const whereClauses = aiSearchedList.map((hotelName, index) => {
+				const placeholder = `${hotelName}`;
+				return `Name LIKE '%${placeholder}%'`;
+			});
+
+			query += whereClauses.join(" OR ");
+			query += ` GROUP BY Id`;
+
+			let hotelRows = await this.#dbContext.runSelectQuery(query);
+
+			resObj.success = hotelRows;
+
+			return resObj;
+		} catch (error) {
+			console.log("Error in listing hotels by AI searched list");
+		} finally {
+			this.#dbContext.close();
+		}
+	}
+
+	async joinAndRemoveHotelDuplications(hotelList1, hotelList2) {
+		try {
+			const uniqueHotels = new Map();
+
+			for (const hotel of hotelList1) {
+				uniqueHotels.set(hotel.Id, hotel);
+			}
+
+			for (const hotel of hotelList2) {
+				uniqueHotels.set(hotel.Id, hotel);
+			}
+
+			return Array.from(uniqueHotels.values());
+		} catch (error) {
+			console.log(error);
+		} finally {
+		}
+	}
+
+	async getHotelsListMappedWithAISearch() {
+		try {
+			const guestCount = this.#message.filters.GuestCount;
+			const fromDate = this.#message.filters.CheckInDate;
+			const toDate = this.#message.filters.CheckOutDate;
+
+			await this.#dbContext.open();
+			let response = {};
+
+			const aiSearchedHotels = await this.getAvailableHotelsListByAISearchedList();
+			const hotelsListByDestination = await this.getHotelsListByDestination();
+
+			let uniqueList = await this.joinAndRemoveHotelDuplications(
+				aiSearchedHotels.success,
+				hotelsListByDestination.success
+			);
+
+			// check room availability
+			let hotelIdList = uniqueList.map(hr => hr.Id);
+			
+			let query = `SELECT * FROM ROOMTYPES WHERE HotelId IN (${hotelIdList})`;
+
+			let roomsList = await this.#dbContext.runSelectQuery(query);
+
+			if (!roomsList || roomsList.length < 1) {
+				response.success = null;
+				return response;
+			}
+
+			hotelIdList = [...new Set(roomsList.map(rl => rl.HotelId))];
+	
+			uniqueList = uniqueList.filter(hr => hotelIdList.includes(hr.Id));
+
+			let availableHotels = [];
+
+			for (const hotel of uniqueList) {
+				const availableRoomsQuery = `SELECT 
+						RT.Id AS RoomTypeId,
+						RT.Code AS RoomTypeCode,
+						Rt.TotalSleeps AS TotalSleepCapacity,
+						RT.RoomsCount - COALESCE(SUM(CASE WHEN R.FromDate <= ? AND R.ToDate >= ? THEN RTR.NoOfRooms ELSE 0 END), 0) AS AvailableRooms
+					FROM RoomTypes AS RT
+					LEFT JOIN ReservationRoomTypes AS RTR ON RT.Id = RTR.RoomTypeId
+					LEFT JOIN Reservations AS R ON RTR.ReservationId = R.Id
+					WHERE 
+						RT.HotelId = ? 
+					GROUP BY 
+						RT.Id;`;
+
+				let availableRooms = await this.#dbContext.runSelectQuery(
+					availableRoomsQuery,
+					[toDate, fromDate, hotel.Id]
+				);
+
+				// calculate total available sleep capacity across all available rooms
+				const totalAvailableCapacity = availableRooms.reduce(
+					(totalCapacity, room) => {
+						return (
+							totalCapacity + room.TotalSleepCapacity * room.AvailableRooms
+						);
+					},
+					0
+				);
+				// check if total available capacity is sufficient for the guest count
+				if (totalAvailableCapacity >= guestCount) {
+					const hotelImages = await this.#dbContext.getValues(
+						Tables.HOTELIMAGES,
+						{
+							HotelId: hotel.Id,
+						}
+					);
+					hotel.ImageURL = hotelImages;
+					hotel.AvailableRooms = availableRooms;
+					availableHotels.push(hotel);
+				}
+			}
+			response.success = availableHotels;
+			return response;
+		} catch (error) {
+			console.log(error);
 		} finally {
 			this.#dbContext.close();
 		}
