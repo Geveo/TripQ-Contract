@@ -131,8 +131,7 @@ export class HotelService {
 				const totalAvailableCapacity = availableRooms.reduce(
 					(totalCapacity, room) => {
 						return (
-							totalCapacity +
-							room.TotalSleepCapacity * room.AvailableRooms
+							totalCapacity + room.TotalSleepCapacity * room.AvailableRooms
 						);
 					},
 					0
@@ -158,7 +157,7 @@ export class HotelService {
 		}
 	}
 
-	async getRecentHotels(){
+	async getRecentHotels() {
 		let resObj = {};
 
 		try {
@@ -179,13 +178,11 @@ export class HotelService {
 			}
 			resObj.success = hotelRows;
 			return resObj;
-
 		} catch (error) {
 			console.log("Error in listing hotel images");
 		} finally {
 			this.#dbContext.close();
 		}
-
 	}
 
 	async getHotelsListByWalletAddress() {
@@ -370,6 +367,11 @@ export class HotelService {
 		}
 	}
 
+	/**
+	 * Get hotels list mapped with AI searched results
+	 * Input - AI searched hotels list, checkIn date, checkOut date, no. of guests, destination
+	 * @returns a list of hotels + room details
+	 */
 	async getHotelsListMappedWithAISearch() {
 		try {
 			const guestCount = this.#message.filters.GuestCount;
