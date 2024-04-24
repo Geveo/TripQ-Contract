@@ -25,7 +25,7 @@ export class HotelService {
 			const hotelEntity = {
 				Name: data.Name,
 				Description: data.Description,
-				StarRatings: (!data.StarRate ? 0 : data.StarRate),
+				StarRatings: !data.StarRate ? 0 : data.StarRate,
 				Location: data.Location,
 				ContactDetails: data.ContactDetails,
 				Facilities: data.Facilities,
@@ -123,9 +123,9 @@ export class HotelService {
 
 				const availableRooms = await this.#dbContext.runSelectQuery(
 					availableRoomsQuery,
-					[ toDate, fromDate,hotel.Id]
+					[toDate, fromDate, hotel.Id]
 				);
-				console.log("availableRooms", availableRooms)
+				console.log("availableRooms", availableRooms);
 
 				// Calculate total available sleep capacity across all available rooms
 				const totalAvailableCapacity = availableRooms.reduce(
@@ -170,7 +170,7 @@ export class HotelService {
 
 			let hotelRows = await this.#dbContext.runSelectQuery(query);
 
-			console.log(hotelRows)
+			console.log(hotelRows);
 
 			if (!(hotelRows && hotelRows.length > 0)) {
 				response.success = null;
@@ -369,8 +369,9 @@ export class HotelService {
 
 	/**
 	 * Get hotels list mapped with AI searched results
-	 * Input - AI searched hotels list, checkIn date, checkOut date, no. of guests, destination
-	 * @returns a list of hotels + room details
+	 * Input: { filters: {AISearchedList : String[], CheckInDate: Date, CheckOutDate: Date,:  GuestCount Number , City: string}
+	 * Output: AvailableHotelsList {Id: Number, Name: String, Description, StarRatings: number, ContactDetails : String, Location : String, Facilities: String[], WalletAddress : String, ImageURL : String[], AvailableRooms: {RoomTypeId : Number, RoomTypeCode : String, TotalSleepCapacity : Number, RoomsCount : Number}}
+	 * @returns - AvailableHotelsList : hotel[]
 	 */
 	async getHotelsListMappedWithAISearch() {
 		try {
