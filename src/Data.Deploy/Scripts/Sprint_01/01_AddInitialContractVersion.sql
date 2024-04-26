@@ -5,19 +5,19 @@ INSERT INTO HOTELS (
 ) VALUES 
     ('The Galle Face Hotel', 'Sri Lanka’s iconic landmark, The Galle Face Hotel, is situated in the heart of Colombo, along the seafront and facing the famous Galle Face Green. One of the oldest hotels east of the Suez, The Galle Face Hotel embraces its rich history and legendary traditions, utilizing them to create engaging, immersive experiences that resonate with old and new generations of travellers alike.',
     5, '{"FullName":"Sanjeev Gardiner","Email":"Sanjeev@gfhgroup.com","PhoneNumber":"0765878789"}', 
-    '{"AddressLine01":"3,","AddressLine02":"2 Galle Rd,","City":"Colombo","DistanceFromCity":"0.5"}', 
+    '{"AddressLine01":"3","AddressLine02":"2 Galle Rd","City":"Colombo","DistanceFromCity":"0.5"}', 
     '[{"Id":2,"Name":"Swimming Pool","Description":"Description"},{"Id":5,"Name":"Spa & Wellness","Description":"Description"},{"Id":8,"Name":"Disabled access","Description":"Description"},{"Id":11,"Name":"Air Port Shuttle","Description":"Description"}]',
     'rB7ZMmFAwpx31Z3UFCixBjqTJqRBdCyk1r', 1624683783279, 1669683784579),
 
     ('Anantara', 'Everyday life is filled with opportunities to seek the exceptional, encounter the new and widen our horizons. For our worldly guests, a stay at Anantara is just one more chapter in a lifetime of travel and exploration. And we intend to make it an extraordinary one. The Anantara experience was born in 2001 with our first luxury property in Thailand’s historic seaside retreat of Hua Hin. From that day forward, we expanded throughout the world to beaches and private islands, countryside retreats, desert sands, heritage wonders and cosmopolitan cities. Today’s portfolio spans Asia, the Indian Ocean, the Middle East, Africa and Europe. Our thoughtfully designed luxury hotels and resorts provide windows into the genuine modern character of each destination. Inside and outside each property, travellers engage with the places, people and stories that make the destination like nowhere else in the world. Guests curate a lifetime of memories through personal experiences, as Anantara opens doors and enables journeys of adventure and indulgence.',
      4, '{"FullName":"Steve Smith","Email":"Steve@ananthara.com","PhoneNumber":"0707873789"}', 
-    '{"AddressLine01":"5,","AddressLine02":"St. Sebastian Rd,","City":"Kaluthara","DistanceFromCity":"1.2"}', 
+    '{"AddressLine01":"5","AddressLine02":"St. Sebastian Rd","City":"Kaluthara","DistanceFromCity":"1.2"}', 
     '[{"Id":2,"Name":"Swimming Pool","Description":"Description"},{"Id":5,"Name":"Spa & Wellness","Description":"Description"},{"Id":9,"Name":"Restaurant","Description":"Description"},{"Id":11,"Name":"Air Port Shuttle","Description":"Description"}]',
     'rB7ZMmFAwpx31Z3UFCixBjqTJqRBdCyk1r', 1624683784879, 1694683684579),
 
     ('Shangri La', 'A personal tropical sanctuary that is perfect for escaping the city, Shangri-La Colombo overlooks the Indian Ocean in the heart of the business district with direct access to the most extensive international shopping mall in Sri Lanka, Shangri-La’s own One Galle Face Mall. The hotel offers the finest accommodation in Colombo, an exciting new dining and social scene and the largest and extensive hotel conference and event facilities. - 541 rooms, suites and apartments - Signature dining venues with an exciting array of seasonal events - The most extensive and versatile event spaces in City',
      5, '{"FullName":"Xi Gin Sha","Email":"Xiginsha@shangrila.com","PhoneNumber":"0705623789"}', 
-      '{"AddressLine01":"2,","AddressLine02":"1 Galle Rd,","City":"Colombo","DistanceFromCity":"0.5"}', 
+      '{"AddressLine01":"2","AddressLine02":"1 Galle Rd","City":"Colombo","DistanceFromCity":"0.5"}', 
       '[{"Id":1,"Name":"Free WiFi","Description":"Description"},{"Id":5,"Name":"Spa & Wellness","Description":"Description"},{"Id":19,"Name":"Restaurant","Description":"Description"},{"Id":12,"Name":"Bar","Description":"Description"}]',
        'rB7ZMmFAwpx31Z3UFCixBjqTJqRBdCyk1r', 1624543784879, 1694683736579);
 
