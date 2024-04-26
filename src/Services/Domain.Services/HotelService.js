@@ -112,6 +112,10 @@ export class HotelService {
 						RT.Id AS RoomTypeId,
 						RT.Code AS RoomTypeCode,
 						Rt.TotalSleeps AS TotalSleepCapacity,
+						RT.SingleBedCount,
+						RT.DoubleBedCount,
+						RT.TripleBedCount,
+						RT.Price,
 						RT.RoomsCount - COALESCE(SUM(CASE WHEN R.FromDate <= ? AND R.ToDate >= ? THEN RTR.NoOfRooms ELSE 0 END), 0) AS AvailableRooms
 					FROM RoomTypes AS RT
 					LEFT JOIN ReservationRoomTypes AS RTR ON RT.Id = RTR.RoomTypeId
@@ -413,6 +417,10 @@ export class HotelService {
 						RT.Id AS RoomTypeId,
 						RT.Code AS RoomTypeCode,
 						Rt.TotalSleeps AS TotalSleepCapacity,
+						RT.SingleBedCount,
+						RT.DoubleBedCount,
+						RT.TripleBedCount,
+						RT.Price,
 						RT.RoomsCount - COALESCE(SUM(CASE WHEN R.FromDate <= ? AND R.ToDate >= ? THEN RTR.NoOfRooms ELSE 0 END), 0) AS AvailableRooms
 					FROM RoomTypes AS RT
 					LEFT JOIN ReservationRoomTypes AS RTR ON RT.Id = RTR.RoomTypeId
