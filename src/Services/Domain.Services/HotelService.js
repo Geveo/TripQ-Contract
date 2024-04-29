@@ -148,6 +148,7 @@ export class HotelService {
 							HotelId: hotel.Id,
 						}
 					);
+					hotel.AvailableRooms = availableRooms;
 					hotel.ImageURL = hotelImages;
 					availableHotels.push(hotel);
 				}
