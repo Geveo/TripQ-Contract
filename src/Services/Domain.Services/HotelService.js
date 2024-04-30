@@ -79,7 +79,11 @@ export class HotelService {
 			const fromDate = filters.CheckInDate;
 			const toDate = filters.CheckOutDate;
 
-			let query = `SELECT DISTINCT * FROM Hotels WHERE Location LIKE '%${filters.City}%' GROUP BY Id`;
+			let query = `SELECT DISTINCT *
+			FROM Hotels
+			WHERE json_extract(Location, '$.City') LIKE '%${filters.City}%'
+			GROUP BY Id
+			`;
 
 			let hotelRows = await this.#dbContext.runSelectQuery(query);
 
@@ -307,7 +311,10 @@ export class HotelService {
 			}
 			const destination = this.#message.filters.City;
 
-			let query = `SELECT DISTINCT * FROM Hotels WHERE Location LIKE '%${destination}%' GROUP BY Id`;
+			let query = `SELECT DISTINCT *
+			FROM Hotels
+			WHERE json_extract(Location, '$.City') LIKE '%${destination}%'
+			GROUP BY Id`;
 
 			let hotelRows = await this.#dbContext.runSelectQuery(query);
 
