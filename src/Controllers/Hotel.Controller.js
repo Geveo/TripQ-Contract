@@ -30,6 +30,9 @@ export class HotelController {
 				case "GetRecentHotels":
 					return await this.#service.getRecentHotels();
 					break;
+				case "GetHotelsListMappedWithAISearch":
+					return await this.#service.getHotelsListMappedWithAISearch();
+					break;
 				default:
 					break;
 			}
