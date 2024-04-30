@@ -267,6 +267,7 @@ export class RoomService {
 
 	async getAvailableRoomCount() {
 		let resObj = {};
+		let availableRooms = [];
 
 		const hotelId = this.#message.filter.hotelId;
 		const fromDate = this.#message.filter.fromDate;
@@ -274,83 +275,61 @@ export class RoomService {
 
 		try {
 			this.#dbContext.open();
-			const query = `SELECT 
-			rt.Id AS RoomTypeId, 
-			rt.RoomsCount,
-            r.FromDate,
-            r.ToDate,
-            rr.NoOfRooms
-			FROM ROOMTYPES rt 
-			LEFT JOIN RESERVATIONROOMTYPES rr ON rt.Id = rr.RoomTypeId 
-			LEFT JOIN RESERVATIONS r 
-			ON rr.ReservationId = r.Id 
-			WHERE rt.HotelId = ? AND r.Id IS NOT NULL AND (r.FromDate > ? OR r.ToDate < ?)`;
 
-			console.log(query);
-			const roomTypeRows = await this.#dbContext.runSelectQuery(query, [
+			// Get All Room Types
+			const roomTypesAll = await this.#dbContext.getValues(Tables.ROOMTYPES, {
+				HotelId: hotelId,
+			});
+			// Get Reservations
+			const reservationsQuery = `SELECT Id, HotelId
+			FROM Reservations
+			WHERE HotelId = ? 
+			AND (
+				(FromDate <= ? AND ? <= ToDate) 
+				OR (FromDate <= ? AND ? <= ToDate) 
+				OR (FromDate >= ? AND ? >= ToDate)
+			)`;
+
+			const reservations = await this.#dbContext.runSelectQuery(reservationsQuery, [
 				hotelId,
+				toDate,
+				toDate,
+				fromDate,
+				fromDate,
 				fromDate,
 				toDate,
 			]);
-			let roomTypeIds = [];
-			let remainingRoomTypes = [];
 
-			roomTypeRows.forEach(element => {
-				if (!roomTypeIds.includes(parseInt(element.RoomTypeId, 10))) {
-					roomTypeIds.push(parseInt(element.RoomTypeId, 10));
-				}
-			});
+			// Get Reservation Room Types
+			let reservationRoomTypesAll = [];
+			for (const reservation of reservations) {
+				const reservationRoomTypesQuery = `SELECT RoomTypeId, NoOfRooms
+				FROM ReservationRoomTypes
+				WHERE ReservationId = ? AND NoOfRooms > 0`;
 
-			roomTypeIds.forEach(element => {
-				const roomTypeById = roomTypeRows.filter(
-					room => room.RoomTypeId === element
+				console.log(reservationRoomTypesQuery);
+				const reservationRoomTypes = await this.#dbContext.runSelectQuery(
+					reservationRoomTypesQuery,
+					[reservation.Id]
 				);
-				let bookedRoomCount = 0;
-				let totalRooms = 0;
-				roomTypeById.forEach(roomType => {
-					totalRooms = roomType.RoomsCount;
-					bookedRoomCount += roomType.NoOfRooms;
-				});
+				reservationRoomTypesAll.push(reservationRoomTypes[0]);
+			}
 
-				let remainingRooms = {
-					RoomTypeId: element,
-					RemainingRoomCount: totalRooms - bookedRoomCount,
-				};
-				remainingRoomTypes.push(remainingRooms);
-			});
-
-			const roomTypes = await this.#dbContext.getValues(Tables.ROOMTYPES, {
-				HotelId: hotelId,
-			});
-			let roomTypeDetails = [];
-			roomTypes.forEach(element => {
-				let elementId = parseInt(element.Id, 10);
-				if (!roomTypeIds.includes(elementId)) {
-					roomTypeDetails.push(element);
-				} else {
-					const roomType = remainingRoomTypes.filter(
-						roomType => roomType.RoomTypeId === element.Id
-					);
-
-					let newRoomType = {
-						Id: element.Id,
-						HotelId: element.HotelId,
-						Code: element.Code,
-						Sqft: element.Sqft,
-						Description: element.Description,
-						RoomsCount: roomType[0].RemainingRoomCount,
-						Price: element.Price,
-						SingleBedCount: element.SingleBedCount,
-						DoubleBedCount: element.DoubleBedCount,
-						TripleBedCount: element.TripleBedCount,
-						TotalSleeps: element.TotalSleeps,
-						CreatedOn: element.CreatedOn,
-						LastUpdatedOn: element.LastUpdatedOn,
-					};
-					roomTypeDetails.push(newRoomType);
+			// Update reserved rooms count
+			for (const reservationRoomType of reservationRoomTypesAll) {
+				for (const roomType of roomTypesAll) {
+					if (reservationRoomType.RoomTypeId == roomType.Id) {
+						roomType.RoomsCount =
+							roomType.RoomsCount - reservationRoomType.NoOfRooms;
+					}
+					availableRooms.push(roomType);
 				}
-			});
-			resObj.success = roomTypeDetails;
+			}
+			if (reservationRoomTypesAll.length == 0) {
+				availableRooms = roomTypesAll;
+			}
+
+			resObj.success = roomTypesAll;
 			return resObj;
 		} catch (error) {
 			throw error;
