@@ -22,6 +22,8 @@ export class HotelService {
 		try {
 			this.#dbContext.open();
 			const data = this.#message.data;
+			const accountDetails = this.#message.data.AccountDetails;
+
 			const hotelEntity = {
 				Name: data.Name,
 				Description: data.Description,
@@ -29,12 +31,31 @@ export class HotelService {
 				Location: data.Location,
 				ContactDetails: data.ContactDetails,
 				Facilities: data.Facilities,
+				PaymentOptions: data.PaymentOption,
 				WalletAddress: data.WalletAddress,
 				CreatedOn: this.#date,
 			};
 
 			// Saving to the hotel table
 			const rowId = await this.#dbContext.insertValue(Tables.HOTELS, hotelEntity);
+
+			// Saving to the owner bank account details table
+			if (accountDetails) {
+				const bankAccountEntry = {
+					HotelId: rowId.lastId,
+					AccountNumber: accountDetails.AccountNumber,
+					BankHolderName: accountDetails.BankHolderName,
+					BankName: accountDetails.BankName,
+					BranchName: accountDetails.BranchName,
+					CreatedOn: this.#date,
+					LastUpdatedOn: this.#date,
+				};
+
+				await this.#dbContext.insertValue(
+					Tables.OWNERBANKACCOUNTDETAILS,
+					bankAccountEntry
+				);
+			}
 
 			// Saving to the image table
 			if (data.ImageURLs && data.ImageURLs.length > 0) {
@@ -263,7 +284,6 @@ export class HotelService {
 		let resObj = {};
 		let debugCode = 0;
 
-		console.log("Taking hotels by Id...............");
 		try {
 			await this.#dbContext.open();
 
