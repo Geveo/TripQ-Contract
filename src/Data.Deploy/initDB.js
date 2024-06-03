@@ -13,7 +13,7 @@ export class DBInitializer {
 		// If database does not exist. (In an initial run)
 		if (!fs.existsSync(settings.dbPath)) {
 			this.#db = new sqlite3.Database(settings.dbPath);
-
+	
 			// Create table ContractVersion
 			await this.#runQuery(`CREATE TABLE IF NOT EXISTS ${Tables.CONTRACTVERSION} (
 				Id INTEGER,
@@ -25,7 +25,8 @@ export class DBInitializer {
 			)`);
 
 			// Create table SqlScriptMigrations
-			await this.#runQuery(`CREATE TABLE IF NOT EXISTS ${Tables.SQLSCRIPTMIGRATIONS} (
+			await this
+				.#runQuery(`CREATE TABLE IF NOT EXISTS ${Tables.SQLSCRIPTMIGRATIONS} (
 			Id INTEGER,
 			Sprint TEXT NOT NULL,
 			ScriptName TEXT NOT NULL,
@@ -34,26 +35,27 @@ export class DBInitializer {
 				CHECK (ConcurrencyKey LIKE '0x%' AND length(ConcurrencyKey) = 18),
 			PRIMARY KEY("Id" AUTOINCREMENT)
 		)`);
-            // Create table Hotels
-            await this.#runQuery(`CREATE TABLE IF NOT EXISTS ${Tables.HOTELS} (
+			// Create table Hotels
+			await this.#runQuery(`CREATE TABLE IF NOT EXISTS ${Tables.HOTELS} (
 				Id INTEGER,
-				Name Text,
-				Description Text,
+				Name TEXT,
+				Description TEXT,
                 StarRatings INTEGER,
-                ContactDetails Text,
-                Location Text,
-                Facilities Text,
-				WalletAddress Text,
+                ContactDetails TEXT,
+                Location TEXT,
+                Facilities TEXT,
+				PaymentOptions INTEGER,
+				WalletAddress TEXT,
 				CreatedOn INTEGER,
 				LastUpdatedOn INTEGER,
 				PRIMARY KEY("Id" AUTOINCREMENT)
 			)`);
 
-             // Create table HotelImages
-             await this.#runQuery(`CREATE TABLE IF NOT EXISTS ${Tables.HOTELIMAGES} (
+			// Create table HotelImages
+			await this.#runQuery(`CREATE TABLE IF NOT EXISTS ${Tables.HOTELIMAGES} (
 				Id INTEGER,
 				HotelId INTEGER,
-				ImageURL Text,
+				ImageURL TEXT,
 				CreatedOn INTEGER,
 				LastUpdatedOn INTEGER,
 				PRIMARY KEY("Id" AUTOINCREMENT),
@@ -64,16 +66,16 @@ export class DBInitializer {
 			await this.#runQuery(`CREATE TABLE IF NOT EXISTS ${Tables.ROOMTYPES} (
 				Id INTEGER,
 				HotelId INTEGER,
-				Code Text,
+				Code TEXT,
 				Sqft INTEGER,
-				Description Text,
+				Description TEXT,
 				RoomsCount INTEGER,
-				Price Text,
+				Price TEXT,
 				SingleBedCount INTEGER,
 				DoubleBedCount INTEGER,
 				TripleBedCount INTEGER,
 				TotalSleeps INTEGER,
-				Facilities Text,
+				Facilities TEXT,
 				CreatedOn INTEGER,
 				LastUpdatedOn INTEGER,
 				PRIMARY KEY("Id" AUTOINCREMENT),
@@ -84,7 +86,7 @@ export class DBInitializer {
 			await this.#runQuery(`CREATE TABLE IF NOT EXISTS ${Tables.ROOMTYPEIMAGES} (
 				Id INTEGER,
 				RoomTypeId INTEGER,
-				ImageURL Text,
+				ImageURL TEXT,
 				CreatedOn INTEGER,
 				LastUpdatedOn INTEGER,
 				PRIMARY KEY("Id" AUTOINCREMENT),
@@ -95,15 +97,15 @@ export class DBInitializer {
 			await this.#runQuery(`CREATE TABLE IF NOT EXISTS ${Tables.ROOMS} (
 				Id INTEGER,
 				RoomTypeId INTEGER,
-				RoomCode Text,
+				RoomCode TEXT,
 				CreatedOn INTEGER,
 				LastUpdatedOn INTEGER,
 				PRIMARY KEY("Id" AUTOINCREMENT),
 				FOREIGN KEY("RoomTypeId") REFERENCES "${Tables.ROOMTYPES}"("Id") ON DELETE CASCADE ON UPDATE CASCADE
 			)`);
 
-			 // Facilities of a room table
-			 await this.#runQuery(`CREATE TABLE IF NOT EXISTS ${Tables.FACILITIES} (
+			// Facilities of a room table
+			await this.#runQuery(`CREATE TABLE IF NOT EXISTS ${Tables.FACILITIES} (
                 Id INTEGER,
                 Name TEXT NOT NULL,
                 Description TEXT,
@@ -112,9 +114,8 @@ export class DBInitializer {
                 PRIMARY KEY("Id" AUTOINCREMENT)
                 )`);
 
-
-            // Room-Facilities Table
-            await this.#runQuery(`CREATE TABLE IF NOT EXISTS ${Tables.ROOMFACILITIES} (
+			// Room-Facilities Table
+			await this.#runQuery(`CREATE TABLE IF NOT EXISTS ${Tables.ROOMFACILITIES} (
                 RoomTypeId INTEGER,
                 FacilityId INTEGER,
                 Quantity INTEGER,  
@@ -146,7 +147,8 @@ export class DBInitializer {
 			)`);
 
 			// Create table ReservationsRoomTypes
-			await this.#runQuery(`CREATE TABLE IF NOT EXISTS ${Tables.RESERVATIONROOMTYPES} (
+			await this
+				.#runQuery(`CREATE TABLE IF NOT EXISTS ${Tables.RESERVATIONROOMTYPES} (
 				Id INTEGER,
 				RoomTypeId INTEGER,
 				ReservationId INTEGER,
@@ -157,6 +159,21 @@ export class DBInitializer {
 				FOREIGN KEY("RoomTypeId") REFERENCES "${Tables.ROOMTYPES}"("Id") ON DELETE CASCADE ON UPDATE CASCADE,
 				FOREIGN KEY("ReservationId") REFERENCES "${Tables.RESERVATIONS}"("Id") ON DELETE CASCADE ON UPDATE CASCADE
 			)`);
+
+			// Hotel owner's bank account details Table
+			await this
+				.#runQuery(`CREATE TABLE IF NOT EXISTS ${Tables.OWNERBANKACCOUNTDETAILS} (
+					Id INTEGER,	
+					HotelId INTEGER,
+					AccountNumber TEXT,
+					BankHolderName TEXT,
+					BankName TEXT,  
+					BranchName TEXT,
+					CreatedOn INTEGER,
+					LastUpdatedOn INTEGER,
+					PRIMARY KEY("Id" AUTOINCREMENT),
+					FOREIGN KEY("HotelId") REFERENCES "${Tables.HOTELS}"("Id") ON DELETE CASCADE ON UPDATE CASCADE
+					)`);
 
 			this.#db.close();
 		}
